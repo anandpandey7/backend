@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-import { Admin } from "../models/Admin.js";
+const Admin = require("../models/Admin");
 
 const { JWT_SECRET } = require("../config");
 
