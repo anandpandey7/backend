@@ -1,44 +1,52 @@
-const jwt = require("jsonwebtoken");
-const Admin = require("../models/admin");
+import jwt from "jsonwebtoken";
+import Admin from "../models/admin.js";
 
-const { JWT_SECRET } = require("../config");
+import { JWT_SECRET } from "../config/config.js";
 
-// Middleware for admin authentication
-function adminMiddleware(req, res, next) {
+// ✅ Named export (matches your routes import)
+export const authMiddleware = async (req, res, next) => {
+  try {
     const tokenHeader = req.headers.authorization;
 
     if (!tokenHeader) {
-        return res.status(401).json({ message: "Unauthorized: Token missing" });
+      return res.status(401).json({ 
+        message: "Unauthorized: Token missing" 
+      });
     }
 
     // Expect: "Bearer <token>"
     const parts = tokenHeader.split(" ");
     if (parts.length !== 2 || parts[0] !== "Bearer") {
-        return res.status(401).json({ message: "Unauthorized: Invalid token format" });
+      return res.status(401).json({ 
+        message: "Unauthorized: Invalid token format" 
+      });
     }
 
     const token = parts[1];
 
-    let decoded;
-    try {
-        decoded = jwt.verify(token, JWT_SECRET);
-    } catch (err) {
-        return res.status(401).json({ message: "Unauthorized: Invalid or expired token" });
+    // Verify token
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    // Find the admin
+    const admin = await Admin.findById(decoded.id);
+    
+    if (!admin) {
+      return res.status(401).json({ 
+        message: "Unauthorized: Admin not found" 
+      });
     }
 
-    // Find the admin using decoded data
-    Admin.findById(decoded.id)
-        .then((admin) => {
-            if (!admin) {
-                return res.status(401).json({ message: "Unauthorized: Admin not found" });
-            }
-
-            req.admin = admin; // attach admin data to request
-            next();
-        })
-        .catch((err) => {
-            return res.status(500).json({ message: "Internal Server Error" });
-        });
-}
-
-module.exports = adminMiddleware;
+    // Attach admin to request
+    req.admin = admin;
+    next();
+  } catch (err) {
+    if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
+      return res.status(401).json({ 
+        message: "Unauthorized: Invalid or expired token" 
+      });
+    }
+    return res.status(500).json({ 
+      message: "Internal Server Error" 
+    });
+  }
+};

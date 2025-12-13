@@ -5,8 +5,9 @@ import connectDB from "./config/db.js";
 
 // Routes
 import authRoutes from "./routes/auth.routes.js";
+import trustRoutes from "./routes/trust.routes.js";
 
-dotenv.config();
+// dotenv.config();
 const app = express();
 
 // Middleware
@@ -18,6 +19,7 @@ connectDB();
 
 // API Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/trust", trustRoutes);
 
 // Home Route
 app.get("/", (req, res) => {
