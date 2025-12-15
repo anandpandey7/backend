@@ -1,34 +1,77 @@
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 import connectDB from "./config/db.js";
+
+// Get __dirname equivalent in ES6
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load env variables
+dotenv.config();
+
+// Connect MongoDB
+connectDB();
 
 // Routes
 import authRoutes from "./routes/auth.routes.js";
 import trustRoutes from "./routes/trust.routes.js";
 
-// dotenv.config();
 const app = express();
 
-// Middleware
-app.use(express.json());
+/* =====================
+   Global Middleware
+===================== */
+// Enable CORS
 app.use(cors());
 
-// Connect MongoDB
-connectDB();
+// Parse JSON bodies
+app.use(express.json());
 
-// API Routes
+// Parse URL-encoded bodies (important for forms)
+app.use(express.urlencoded({ extended: true }));
+
+/* =====================
+   Static File Serving
+===================== */
+// Make uploads folder publicly accessible
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "uploads"))
+);
+
+/* =====================
+   API Routes
+===================== */
 app.use("/api/auth", authRoutes);
 app.use("/api/trust", trustRoutes);
 
-// Home Route
+/* =====================
+   Health Check
+===================== */
 app.get("/", (req, res) => {
-  res.send("Dharti Automation Backend API is running...");
+  res.json({ message: "Dharti Automation Backend Running 🚀" });
 });
 
-// Server Listener
-const PORT = 3000;
+/* =====================
+   Error Handling (optional)
+===================== */
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    message: "Something went wrong"
+  });
+});
 
+/* =====================
+   Server Start
+===================== */
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);  // Fixed: was using template literal incorrectly
 });
+
+

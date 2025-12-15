@@ -1,4 +1,4 @@
-const { z } = require("zod");
+import { z } from "zod";
 
 // Company schema
 const companySchema = z.object({
@@ -14,11 +14,11 @@ const statsSchema = z.object({
 });
 
 // Main schema
-const trustSchema = z.object({
+export const trustSchema = z.object({
   trustedCompanies: z.array(companySchema).min(1),
   stats: statsSchema.optional()
 });
 
-module.exports = {
-  trustSchema
-};
+// module.exports = {
+//   trustSchema
+// };
