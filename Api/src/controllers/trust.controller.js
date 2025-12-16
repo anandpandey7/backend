@@ -1,10 +1,20 @@
+import { merge } from "zod/mini";
 import Trust from "../models/trust.js";
 import { trustSchema } from "../validators/trust.validation.js";
 
 export const upsertTrustData = async (req, res) => {
   try {
-    const trustedCompanies = JSON.parse(req.body.trustedCompanies);
+    // const trustedCompanies = JSON.parse(req.body.trustedCompanies);
+
+    let trustedCompanies;
+    try {
+      trustedCompanies = JSON.parse(req.body.trustedCompanies);
+    } catch (err) {
+      return res.status(400).json({ success: false, message: "Invalid trustedCompanies JSON" });
+    }
     const stats = req.body.stats ? JSON.parse(req.body.stats) : undefined;
+
+    // console.log(req.files);
 
     // Zod validation
     const parsed = trustSchema.safeParse({
@@ -13,6 +23,7 @@ export const upsertTrustData = async (req, res) => {
     });
 
     if (!parsed.success) {
+      // console.log("Zod validation failed:", parsed.error.errors);
       return res.status(400).json({
         success: false,
         errors: parsed.error.errors
@@ -20,6 +31,7 @@ export const upsertTrustData = async (req, res) => {
     }
 
     if (!req.files || req.files.length !== trustedCompanies.length) {
+      // console.log("File count mismatch:", req.files, trustedCompanies);
       return res.status(400).json({
         success: false,
         message: "Each company must have one logo"
@@ -35,6 +47,19 @@ export const upsertTrustData = async (req, res) => {
     let trustData = await Trust.findOne();
 
     if (trustData) {
+      const existingCompanies = trustData.trustedCompanies || [];
+      const mergedCompanies = [...existingCompanies];
+      companiesWithLogos.forEach(newCompany => {
+        const index = mergedCompanies.findIndex(c => c.name === newCompany.name);
+        if (index > -1) {
+          // Update logo if company exists
+          mergedCompanies[index].logo = newCompany.logo;
+        } else {
+          // Add new company
+          mergedCompanies.push(newCompany);
+        }
+      });
+
       trustData.trustedCompanies = companiesWithLogos;
       if (stats) trustData.stats = stats;
       await trustData.save();

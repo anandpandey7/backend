@@ -3,14 +3,14 @@ import { z } from "zod";
 // Company schema
 const companySchema = z.object({
   name: z.string().min(1, "Company name is required"),
-  logo: z.string().url("Logo must be a valid URL")
+  logo: z.string().url("Logo must be a valid URL").optional()
 });
 
 // Stats schema (OPTIONAL)
 const statsSchema = z.object({
   enterpriseClients: z.number().int().nonnegative(),
   countriesServed: z.number().int().nonnegative(),
-  customerSatisfaction: z.number().min(0).max(5)
+  customerSatisfaction: z.number().min(0)
 });
 
 // Main schema
