@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import "admin-lte/dist/css/adminlte.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import OverlayScrollbars from "overlayscrollbars";
 

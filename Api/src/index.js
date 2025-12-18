@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
+// import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import connectDB from "./config/db.js";
@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Load env variables
-dotenv.config();
+// dotenv.config();
 
 // Connect MongoDB
 connectDB();
@@ -18,6 +18,10 @@ connectDB();
 // Routes
 import authRoutes from "./routes/auth.routes.js";
 import trustRoutes from "./routes/trust.routes.js";
+import countryRoutes from "./routes/country.routes.js";
+import postRoutes from "./routes/post.routes.js";
+
+
 
 const app = express();
 
@@ -47,6 +51,9 @@ app.use(
 ===================== */
 app.use("/api/auth", authRoutes);
 app.use("/api/trust", trustRoutes);
+app.use("/api/countries", countryRoutes);
+app.use("/api/posts", postRoutes);
+
 
 /* =====================
    Health Check
@@ -56,7 +63,7 @@ app.get("/", (req, res) => {
 });
 
 /* =====================
-   Error Handling (optional)
+   Error Handling 
 ===================== */
 app.use((err, req, res, next) => {
   console.error(err.stack);

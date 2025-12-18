@@ -45,6 +45,7 @@ export const upsertTrustData = async (req, res) => {
     }));
 
     let trustData = await Trust.findOne();
+    console.log(`trustdata = ${trustData}`);
 
     if (trustData) {
       const existingCompanies = trustData.trustedCompanies || [];
