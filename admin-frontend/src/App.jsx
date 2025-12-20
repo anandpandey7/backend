@@ -7,6 +7,9 @@ import CountryTable from './components/layout/countrylist';
 import Country from './components/layout/country';
 import Footer from './components/layout/footer';
 import Header from './components/layout/header';
+import ServicesManager from './components/layout/servicesManager';
+import PortfolioManager from './components/layout/portfoliomanager';
+import TestimonialsManager from './components/layout/testimonialsManager';
 
 function App() {
   return (
@@ -14,7 +17,6 @@ function App() {
       <div className="app-wrapper">
         <Sidebar />
         <Header/>
-        
         <main className="app-main">
           <Routes>
             {/* Dashboard */}
@@ -27,6 +29,11 @@ function App() {
             <Route path="/country" element={<Country />} />
             {/* <Route path="/country/form" element={<CountryForm />} />
             <Route path="/country/list" element={<CountryTable />} /> */}
+
+            <Route path="/services" element={<ServicesManager/>} />
+            <Route path="/portfolio" element={<PortfolioManager/>} />
+            <Route path="/testimonials" element={<TestimonialsManager/>} />
+            
             
             {/* Default redirect */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />

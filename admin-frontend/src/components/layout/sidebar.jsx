@@ -36,12 +36,32 @@ const Sidebar = () => {
                 <p>Dashboard</p>
               </Link>
             </li>
+            <li className="nav-item">
+              <Link to="/portfolio" className="nav-link">
+                <i className="nav-icon bi bi-file-text"></i>
+                <p>Portfolio</p>
+              </Link>
+            </li>
 
-            {/* Posts */}
+            <li className="nav-item">
+              <Link to="/testimonials" className="nav-link">
+                <i className="nav-icon bi bi-file-text"></i>
+                <p>Testimonials</p>
+              </Link>
+            </li>
+
+            {/* Blogs */}
             <li className="nav-item">
               <Link to="/posts" className="nav-link">
                 <i className="nav-icon bi bi-file-text"></i>
-                <p>Posts</p>
+                <p>Blogs</p>
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link to="/services" className="nav-link">
+                <i className="nav-icon bi bi-file-text"></i>
+                <p>Services</p>
               </Link>
             </li>
 

@@ -134,7 +134,7 @@ const CreatePost = ({ editPost, onPostSaved, onCancelEdit }) => {
     <div className="card">
       <div className="card-header d-flex justify-content-between align-items-center">
         <h3 className="card-title mb-0">
-          {editPost ? "Edit Post" : "Create Post"}
+          {editPost ? "Edit Blog" : "Create Blog"}
         </h3>
         {editPost && (
           <button
@@ -149,7 +149,7 @@ const CreatePost = ({ editPost, onPostSaved, onCancelEdit }) => {
       <div className="card-body">
         {/* Title */}
         <div className="mb-3">
-          <label className="form-label">Post Title</label>
+          <label className="form-label">Blog Title</label>
           <input
             type="text"
             className="form-control"
@@ -174,7 +174,7 @@ const CreatePost = ({ editPost, onPostSaved, onCancelEdit }) => {
         {/* Image */}
         <div className="mb-3">
           <label className="form-label">
-            {editPost ? "Replace Image (optional)" : "Post Image"}
+            {editPost ? "Replace Image (optional)" : "Blog Image"}
           </label>
           <input
             type="file"
@@ -301,7 +301,7 @@ const PostsManager = () => {
         <div className="col-12 col-lg-8">
           <div className="card">
             <div className="card-header">
-              <h3 className="card-title">Posts</h3>
+              <h3 className="card-title">Blogs</h3>
             </div>
 
             <div className="card-body">

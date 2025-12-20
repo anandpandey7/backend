@@ -20,6 +20,12 @@ import authRoutes from "./routes/auth.routes.js";
 import trustRoutes from "./routes/trust.routes.js";
 import countryRoutes from "./routes/country.routes.js";
 import postRoutes from "./routes/post.routes.js";
+import stateRoutes from "./routes/state.routes.js";
+import cityRoutes from "./routes/city.routes.js";
+import clientProjectRoutes from "./routes/clientProject.routes.js";
+import portfolioRoutes from "./routes/portfolio.routes.js";
+import testimonialRoutes from "./routes/testimonial.routes.js";
+import serviceRoutes from "./routes/service.routes.js";
 
 
 
@@ -37,6 +43,7 @@ app.use(express.json());
 // Parse URL-encoded bodies (important for forms)
 app.use(express.urlencoded({ extended: true }));
 
+
 /* =====================
    Static File Serving
 ===================== */
@@ -53,6 +60,12 @@ app.use("/api/auth", authRoutes);
 app.use("/api/trust", trustRoutes);
 app.use("/api/countries", countryRoutes);
 app.use("/api/posts", postRoutes);
+app.use("/api/states", stateRoutes);
+app.use("/api/cities", cityRoutes);
+app.use("/api/clients", clientProjectRoutes);
+app.use("/api/portfolio",portfolioRoutes);
+app.use("/api/testimonials",testimonialRoutes);
+app.use("/api/services",serviceRoutes);
 
 
 /* =====================
