@@ -35,7 +35,7 @@ function App() {
             <Route path="/testimonials" element={<TestimonialsManager/>} />
             
             
-            {/* Default redirect */}
+            {/* Default redirect*/}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             
             {/* 404 fallback */}
