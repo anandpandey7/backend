@@ -27,7 +27,7 @@ function App() {
             
             {/* Country Routes */}
             <Route path="/country" element={<Country />} />
-            {/* <Route path="/country/form" element={<CountryForm />} />
+            {/* <Route path="/country/form"  element={<CountryForm />} />
             <Route path="/country/list" element={<CountryTable />} /> */}
 
             <Route path="/services" element={<ServicesManager/>} />
