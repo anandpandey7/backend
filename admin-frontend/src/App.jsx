@@ -10,6 +10,8 @@ import Header from './components/layout/header';
 import ServicesManager from './components/layout/servicesManager';
 import PortfolioManager from './components/layout/portfoliomanager';
 import TestimonialsManager from './components/layout/testimonialsManager';
+import ClientsManager from './components/layout/ClientsManager';
+import InquiriesManager from './components/layout/InquiriesManager';
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
             <Route path="/services" element={<ServicesManager/>} />
             <Route path="/portfolio" element={<PortfolioManager/>} />
             <Route path="/testimonials" element={<TestimonialsManager/>} />
+            <Route path="/clients"element={<ClientsManager />} />
+            <Route path="/inquires" element={<InquiriesManager />} />
             
             
             {/* Default redirect*/}

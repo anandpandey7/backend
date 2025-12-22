@@ -26,6 +26,8 @@ import clientProjectRoutes from "./routes/clientProject.routes.js";
 import portfolioRoutes from "./routes/portfolio.routes.js";
 import testimonialRoutes from "./routes/testimonial.routes.js";
 import serviceRoutes from "./routes/service.routes.js";
+import inquiryRoutes from "./routes/inquiry.routes.js";
+
 
 
 
@@ -66,6 +68,7 @@ app.use("/api/clients", clientProjectRoutes);
 app.use("/api/portfolio",portfolioRoutes);
 app.use("/api/testimonials",testimonialRoutes);
 app.use("/api/services",serviceRoutes);
+app.use("/api/inquiries", inquiryRoutes);
 
 
 /* =====================

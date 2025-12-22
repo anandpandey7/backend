@@ -28,10 +28,7 @@ export const getClientsWithoutPortfolio = async (req, res) => {
   }
 };
 
-/* =========================
-   📥 GET 2: Clients WITH portfolio
-   (for editing)
-========================= */
+// GET 2: Clients WITH portfolio (for editing)
 export const getClientsWithPortfolio = async (req, res) => {
   try {
     const clients = await ClientProject.find({
@@ -51,9 +48,7 @@ export const getClientsWithPortfolio = async (req, res) => {
 };
 
 
-/* =========================
-   ➕ ADD Portfolio (gallery)
-========================= */
+// ADD Portfolio (gallery) - basically editing client data
 export const addPortfolio = async (req, res) => {
   try {
     const { id } = req.params;
@@ -146,10 +141,8 @@ export const editPortfolio = async (req, res) => {
   }
 };
 
-/* =========================
-   🗑️ DELETE Portfolio
-   (remove gallery only)
-========================= */
+//DELETE Portfolio (remove gallery only) -- removing galley data from client
+
 export const deletePortfolio = async (req, res) => {
   try {
     const { id } = req.params;

@@ -136,9 +136,7 @@ export const editClientProject = async (req, res) => {
   }
 };
 
-/* =========================
-   🗑️ Delete Project
-========================= */
+// Delete
 export const deleteClientProject = async (req, res) => {
   try {
     const { id } = req.params;
