@@ -27,6 +27,7 @@ import portfolioRoutes from "./routes/portfolio.routes.js";
 import testimonialRoutes from "./routes/testimonial.routes.js";
 import serviceRoutes from "./routes/service.routes.js";
 import inquiryRoutes from "./routes/inquiry.routes.js";
+import settingRoutes from "./routes/setting.routes.js";
 
 
 
@@ -69,6 +70,7 @@ app.use("/api/portfolio",portfolioRoutes);
 app.use("/api/testimonials",testimonialRoutes);
 app.use("/api/services",serviceRoutes);
 app.use("/api/inquiries", inquiryRoutes);
+app.use("/api/settings",settingRoutes);
 
 
 /* =====================

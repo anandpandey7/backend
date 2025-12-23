@@ -10,8 +10,15 @@ const __dirname = path.dirname(__filename);
 /* ➕ Create Service */
 export const addService = async (req, res) => {
   try {
+
+    // console.log("=== RECEIVED DATA ===");
+    // console.log("Body:", req.body);
+    // console.log("File:", req.file);
+    // console.log("====================");
+
     const parsed = serviceSchema.safeParse(req.body);
     if (!parsed.success) {
+      // console.log("ZOD ERROR:", parsed.error.format());
       return res.status(400).json({
         success: false,
         errors: parsed.error.errors
@@ -19,6 +26,7 @@ export const addService = async (req, res) => {
     }
 
     if (!req.file) {
+      // console.log("No file uploaded");
       return res.status(400).json({
         success: false,
         message: "Thumbnail image is required"

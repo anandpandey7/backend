@@ -23,47 +23,83 @@ const CreateService = ({ editService, onSaved, onCancel }) => {
     setDescription("");
     setLongDescription("");
     setThumbnail(null);
+    // Reset file input
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput) fileInput.value = "";
   };
 
   const handleSubmit = async () => {
-    if (!editService && !thumbnail) {
-      alert("Thumbnail required");
-      return;
+  // Validation
+  if (!title.trim()) {
+    alert("Title is required");
+    return;
+  }
+  if (!description.trim()) {
+    alert("Description is required");
+    return;
+  }
+  if (!longDescription.trim()) {
+    alert("Long description is required");
+    return;
+  }
+  if (!editService && !thumbnail) {
+    alert("Thumbnail required for new service");
+    return;
+  }
+
+  const fd = new FormData();
+  fd.append("title", title.trim());
+  fd.append("description", description.trim());
+  fd.append("longDescription", longDescription.trim());
+  if (thumbnail) fd.append("thumbnail", thumbnail);
+
+  try {
+    setLoading(true);
+    const url = editService
+      ? `http://localhost:5000/api/services/${editService._id}`
+      : "http://localhost:5000/api/services";
+
+    const method = editService ? "PUT" : "POST";
+
+    const res = await fetch(url, { method, body: fd });
+    const data = await res.json();
+
+    // Log everything for debugging
+    // console.log("=== SERVER RESPONSE ===");
+    // console.log("Status:", res.status);
+    // console.log("Response data:", data);
+    // console.log("======================");
+
+    if (!res.ok || !data.success) {
+      // Show the actual error from the server
+      let errorMessage = data.message || `Server error: ${res.status}`;
+      
+      if (data.errors) {
+        // Zod validation errors
+        errorMessage = data.errors.map(e => `${e.path.join('.')}: ${e.message}`).join("\n");
+      }
+      
+      alert(`Error:\n${errorMessage}`);
+      throw new Error(errorMessage);
     }
 
-    const fd = new FormData();
-    fd.append("title", title);
-    fd.append("description", description);
-    fd.append("longDescription", longDescription);
-    if (thumbnail) fd.append("thumbnail", thumbnail);
-
-    try {
-      setLoading(true);
-      const url = editService
-        ? `http://localhost:5000/api/services/${editService._id}`
-        : "http://localhost:5000/api/services";
-
-      const method = editService ? "PUT" : "POST";
-
-      const res = await fetch(url, { method, body: fd });
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.message || "Failed");
-
-      onSaved(data.service);
-      reset();
-    } catch (err) {
-      console.error(err);
-      alert("Error saving service");
-    } finally {
-      setLoading(false);
+    if (!data.service) {
+      throw new Error("No service object in response");
     }
-  };
+
+    onSaved(data.service);
+    reset();
+  } catch (err) {
+    console.error("Full error:", err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="card">
-      <div className="card-header d-flex justify-content-between">
-        <h3 className="card-title">
+      <div className="card-header d-flex justify-content-between align-items-center">
+        <h3 className="card-title mb-0">
           {editService ? "Edit Service" : "Create Service"}
         </h3>
         {editService && (
@@ -74,45 +110,67 @@ const CreateService = ({ editService, onSaved, onCancel }) => {
       </div>
 
       <div className="card-body">
-        <input
-          className="form-control mb-2"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+        <div className="mb-3">
+          <label className="form-label">Title *</label>
+          <input
+            className="form-control"
+            placeholder="Service title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </div>
 
-        <textarea
-          className="form-control mb-2"
-          rows="2"
-          placeholder="Short description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
+        <div className="mb-3">
+          <label className="form-label">Short Description *</label>
+          <textarea
+            className="form-control"
+            rows="2"
+            placeholder="Brief description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </div>
 
-        <textarea
-          className="form-control mb-2"
-          rows="4"
-          placeholder="Long description"
-          value={longDescription}
-          onChange={(e) => setLongDescription(e.target.value)}
-        />
+        <div className="mb-3">
+          <label className="form-label">Long Description *</label>
+          <textarea
+            className="form-control"
+            rows="4"
+            placeholder="Detailed description"
+            value={longDescription}
+            onChange={(e) => setLongDescription(e.target.value)}
+          />
+        </div>
 
-        <input
-          type="file"
-          className="form-control"
-          accept="image/*"
-          onChange={(e) => setThumbnail(e.target.files[0])}
-          required={!editService}
-        />
+        <div className="mb-3">
+          <label className="form-label">
+            Thumbnail {!editService && "*"}
+          </label>
+          <input
+            type="file"
+            className="form-control"
+            accept="image/*"
+            onChange={(e) => setThumbnail(e.target.files[0])}
+          />
+          {editService && (
+            <small className="text-muted">
+              Leave empty to keep current thumbnail
+            </small>
+          )}
+        </div>
       </div>
 
       <div className="card-footer">
         <button
-          className="btn btn-primary"
+          className="btn btn-primary w-100"
           disabled={loading}
           onClick={handleSubmit}
         >
-          {loading ? "Saving..." : editService ? "Update Service" : "Save Service"}
+          {loading
+            ? "Saving..."
+            : editService
+            ? "Update Service"
+            : "Create Service"}
         </button>
       </div>
     </div>

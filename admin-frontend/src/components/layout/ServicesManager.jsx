@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import ServiceCard from "./ServiceCard";
 import CreateService from "./CreateService";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ServicesManager = () => {
   const [services, setServices] = useState([]);
@@ -12,12 +14,14 @@ const ServicesManager = () => {
   }, []);
 
   const fetchServices = async () => {
+    setLoading(true);
     try {
       const res = await fetch("http://localhost:5000/api/services");
       const data = await res.json();
       setServices(data.services || []);
     } catch (e) {
       console.error(e);
+      toast.error("Failed to fetch services");
     } finally {
       setLoading(false);
     }
@@ -26,27 +30,44 @@ const ServicesManager = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this service?")) return;
 
-    await fetch(`http://localhost:5000/api/services/${id}`, {
-      method: "DELETE",
-    });
+    try {
+      const res = await fetch(`http://localhost:5000/api/services/${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
 
-    setServices((prev) => prev.filter((s) => s._id !== id));
-    if (editService?._id === id) setEditService(null);
+      if (!data.success) {
+        toast.error(data.message || "Failed to delete service");
+        return;
+      }
+
+      setServices((prev) => prev.filter((s) => s._id !== id));
+      if (editService?._id === id) setEditService(null);
+      toast.success("Service deleted!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to delete service");
+    }
   };
 
   const handleSaved = (service) => {
     if (editService) {
+      // update existing service
       setServices((prev) =>
         prev.map((s) => (s._id === service._id ? service : s))
       );
+      toast.success("Service updated!");
       setEditService(null);
     } else {
-      fetchServices();
+      // add new service immediately
+      setServices((prev) => [service, ...prev]);
+      toast.success("Service added!");
     }
   };
 
   return (
     <div className="container py-4">
+      <ToastContainer position="top-center" autoClose={3000} />
       <div className="row g-4">
         <div className="col-12 col-lg-4">
           <CreateService

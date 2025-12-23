@@ -79,6 +79,12 @@ const Sidebar = () => {
                 <p>Services</p>
               </Link>
             </li>
+            <li className="nav-item">
+              <Link to="/settings" className="nav-link">
+                <i className="nav-icon bi bi-file-text"></i>
+                <p>Settings</p>
+              </Link>
+            </li>
 
             {/* Country (Merged Single Page) */}
             <li className="nav-item">

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 import PortfolioForm from "./PortfolioForm";
 
 const API = "http://localhost:5000/api/portfolio";
@@ -27,6 +29,7 @@ const PortfolioManager = () => {
       setWithoutPortfolio(woData.clients || []);
     } catch (e) {
       console.error(e);
+      toast.error("Failed to fetch portfolios!");
     } finally {
       setLoading(false);
     }
@@ -35,12 +38,23 @@ const PortfolioManager = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this portfolio?")) return;
 
-    await fetch(`${API}/${id}`, { method: "DELETE" });
-    fetchAll();
+    try {
+      const res = await fetch(`${API}/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        toast.success("Portfolio deleted successfully!");
+        fetchAll();
+      } else {
+        toast.error("Failed to delete portfolio.");
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error("Error deleting portfolio.");
+    }
   };
 
   return (
     <div className="container py-4">
+      <ToastContainer position="top-center" autoClose={3000} />
       <div className="row g-4">
         {/* Form */}
         <div className="col-12 col-lg-4">
@@ -49,6 +63,7 @@ const PortfolioManager = () => {
             onSaved={() => {
               setEditClient(null);
               fetchAll();
+              toast.success("Portfolio saved successfully!");
             }}
             onCancel={() => setEditClient(null)}
           />
