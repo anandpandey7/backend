@@ -84,7 +84,7 @@ const ClientForm = ({ editClient, onSaved, onCancel }) => {
     phone: "",
     projectName: "",
     projectDescription: "",
-    projectLongDescription: "", // 👈 Stores HTML with base64 images
+    projectLongDescription: "", // 👈 Stores HTML with images
     startDate: "",
     endDate: "",
     budget: "",

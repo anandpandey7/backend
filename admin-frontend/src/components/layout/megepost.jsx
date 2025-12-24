@@ -1,9 +1,59 @@
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
-// PostCard Component
+/* ================= CKEditor Upload Adapter ================= */
+
+class MyUploadAdapter {
+  constructor(loader) {
+    this.loader = loader;
+  }
+
+  async upload() {
+    const file = await this.loader.file;
+    const data = new FormData();
+    data.append("upload", file);
+
+    const res = await fetch("http://localhost:5000/api/ckeditor/upload", {
+      method: "POST",
+      body: data,
+    });
+
+    const result = await res.json();
+
+    if (!result.url) {
+      throw new Error("Upload failed");
+    }
+
+    return {
+      default: result.url,
+    };
+  }
+
+  abort() {}
+}
+
+function MyCustomUploadAdapterPlugin(editor) {
+  editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
+    return new MyUploadAdapter(loader);
+  };
+}
+
+/* ================= Helpers ================= */
+
+const stripHtml = (html) => {
+  const div = document.createElement("div");
+  div.innerHTML = html || "";
+  return div.textContent || div.innerText || "";
+};
+
+/* ================= PostCard ================= */
+
 const PostCard = ({ post, onEdit, onDelete }) => {
+  const [showModal, setShowModal] = useState(false);
+
   const truncateText = (text, maxLength = 90) => {
     if (!text) return "";
     return text.length > maxLength
@@ -11,60 +61,200 @@ const PostCard = ({ post, onEdit, onDelete }) => {
       : text;
   };
 
+  // Fix relative image URLs in CKEditor HTML
+  const fixImageUrls = (html) => {
+    if (!html) return "";
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    const images = doc.querySelectorAll("img");
+    images.forEach((img) => {
+      const src = img.getAttribute("src");
+      if (src && src.startsWith("/")) {
+        img.setAttribute("src", "http://localhost:5000" + src);
+      }
+    });
+
+    return doc.body.innerHTML;
+  };
+
   return (
-    <div className="post-card card shadow-sm">
-      <img
-        src={`http://localhost:5000${post.image}`}
-        className="card-img-top"
-        alt={post.title}
-        style={{ height: "160px", objectFit: "cover" }}
-      />
+    <>
+      <div className="post-card card shadow-sm">
+        <img
+          src={`http://localhost:5000${post.image}`}
+          className="card-img-top"
+          alt={post.title}
+          style={{ height: "160px", objectFit: "cover" }}
+        />
 
-      <div className="card-body d-flex flex-column">
-        <h5 className="card-title">
-          {post.title.replaceAll('"', "")}
-        </h5>
+        <div className="card-body d-flex flex-column">
+          <h5 className="card-title">
+            {post.title.replaceAll('"', "")}
+          </h5>
 
-        <p className="card-text text-muted flex-grow-1">
-          {truncateText(post.description.replaceAll('"', ""))}
-        </p>
+          <p className="card-text text-muted mb-1">
+            {truncateText(post.description.replaceAll('"', ""))}
+          </p>
 
-        <div className="d-flex justify-content-between mt-2">
-          <button
-            className="btn btn-sm btn-outline-primary"
-            onClick={() => onEdit(post)}
-          >
-            <i className="bi bi-pencil"></i> Edit
-          </button>
+          {post.projectLongDescription && (
+            <button
+              className="btn btn-link btn-sm p-0 mb-2"
+              onClick={() => setShowModal(true)}
+            >
+              View Full Description →
+            </button>
+          )}
 
-          <button
-            className="btn btn-sm btn-outline-danger"
-            onClick={() => onDelete(post._id)}
-          >
-            <i className="bi bi-trash"></i> Delete
-          </button>
+          <div className="d-flex justify-content-between mt-auto">
+            <button
+              className="btn btn-sm btn-outline-primary"
+              onClick={() => onEdit(post)}
+            >
+              Edit
+            </button>
+
+            <button
+              className="btn btn-sm btn-outline-danger"
+              onClick={() => onDelete(post._id)}
+            >
+              Delete
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div
+          className="modal fade show"
+          style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
+          onClick={() => setShowModal(false)}
+        >
+          <div
+            className="modal-dialog modal-lg modal-dialog-scrollable"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  {post.title.replaceAll('"', "")}
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowModal(false)}
+                ></button>
+              </div>
+
+              <div className="modal-body">
+
+              {/* Featured Image (Compact) */}
+              <div className="text-center mb-3">
+                <img
+                  src={`http://localhost:5000${post.image}`}
+                  alt={post.title}
+                  className="img-fluid rounded shadow-sm"
+                  style={{
+                    width: "100%",
+                    maxWidth: "320px",
+                    maxHeight: "180px",
+                    objectFit: "cover"
+                  }}
+                />
+              </div>
+
+              {/* Short Description */}
+              <h6 className="fw-semibold mb-1">Description</h6>
+              <p
+                className="text-muted small mb-3"
+                style={{ lineHeight: "1.4" }}
+              >
+                {post.description.replaceAll('"', "")}
+              </p>
+
+              <hr className="my-2" />
+
+              {/* Full Content */}
+              <h6 className="fw-semibold mb-2">Full Content</h6>
+
+              <div
+                className="post-description-content small"
+                style={{
+                  maxWidth: "100%",
+                  wordWrap: "break-word",
+                  lineHeight: "1.5"
+                }}
+                dangerouslySetInnerHTML={{
+                  __html: fixImageUrls(post.projectLongDescription || "")
+                }}
+              />
+            </div>
+
+              <div className="modal-footer">
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setShowModal(false)}
+                >
+                  Close
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => {
+                    setShowModal(false);
+                    onEdit(post);
+                  }}
+                >
+                  Edit Post
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        .post-description-content img {
+          max-width: 100%;
+          height: auto;
+          display: block;
+          margin: 1rem 0;
+        }
+        .post-description-content {
+          line-height: 1.6;
+        }
+        .post-description-content p {
+          margin-bottom: 0.75rem;
+        }
+        .post-description-content h2,
+        .post-description-content h3 {
+          margin-top: 1.5rem;
+          margin-bottom: 1rem;
+        }
+      `}</style>
+    </>
   );
 };
 
-// CreatePost Component (now handles both create and edit)
+/* ================= CreatePost ================= */
+
 const CreatePost = ({ editPost, onPostSaved, onCancelEdit }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [projectLongDescription, setProjectLongDescription] = useState("");
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Update form when editPost changes
   useEffect(() => {
     if (editPost) {
       setTitle(editPost.title.replace(/"/g, ""));
       setDescription(editPost.description.replace(/"/g, ""));
+      setProjectLongDescription(editPost.projectLongDescription || "");
       setImage(null);
     } else {
       setTitle("");
       setDescription("");
+      setProjectLongDescription("");
       setImage(null);
     }
   }, [editPost]);
@@ -78,7 +268,8 @@ const CreatePost = ({ editPost, onPostSaved, onCancelEdit }) => {
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", description);
-    
+    formData.append("projectLongDescription", projectLongDescription);
+
     if (image) {
       formData.append("image", image);
     }
@@ -92,26 +283,21 @@ const CreatePost = ({ editPost, onPostSaved, onCancelEdit }) => {
 
       const method = editPost ? "PUT" : "POST";
 
-      const res = await fetch(url, {
-        method,
-        body: formData,
-      });
-
+      const res = await fetch(url, { method, body: formData });
       const data = await res.json();
 
       if (!res.ok) {
-        toast.error(data.message || `Failed to ${editPost ? "update" : "create"} post`);
+        toast.error(data.message || "Failed to save post");
         return;
       }
 
-      toast.success(`Post ${editPost ? "updated" : "created"} successfully! ✅`);
+      toast.success(`Post ${editPost ? "updated" : "created"} successfully!`);
 
-      // Reset form
       setTitle("");
       setDescription("");
+      setProjectLongDescription("");
       setImage(null);
 
-      // Notify parent component
       onPostSaved(data.post);
 
     } catch (err) {
@@ -125,6 +311,7 @@ const CreatePost = ({ editPost, onPostSaved, onCancelEdit }) => {
   const handleCancel = () => {
     setTitle("");
     setDescription("");
+    setProjectLongDescription("");
     setImage(null);
     onCancelEdit();
     toast.info("Edit cancelled");
@@ -137,11 +324,8 @@ const CreatePost = ({ editPost, onPostSaved, onCancelEdit }) => {
           {editPost ? "Edit Blog" : "Create Blog"}
         </h3>
         {editPost && (
-          <button
-            className="btn btn-sm btn-secondary"
-            onClick={handleCancel}
-          >
-            Cancel Edit
+          <button className="btn btn-sm btn-secondary" onClick={handleCancel}>
+            Cancel
           </button>
         )}
       </div>
@@ -159,16 +343,36 @@ const CreatePost = ({ editPost, onPostSaved, onCancelEdit }) => {
           />
         </div>
 
-        {/* Description */}
+        {/* Short Description */}
         <div className="mb-3">
           <label className="form-label">Description</label>
           <textarea
             className="form-control"
-            rows="4"
+            rows="3"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
           />
+        </div>
+
+        {/* Long Description - CKEditor */}
+        <div className="mb-3">
+          <label className="form-label">Long Description</label>
+          <CKEditor
+            editor={ClassicEditor}
+            data={projectLongDescription}
+            config={{
+              licenseKey: "GPL",
+              extraPlugins: [MyCustomUploadAdapterPlugin],
+            }}
+            onChange={(event, editor) => {
+              const data = editor.getData();
+              setProjectLongDescription(data);
+            }}
+          />
+          <small className="text-muted">
+            You can upload images directly in the editor.
+          </small>
         </div>
 
         {/* Image */}
@@ -187,8 +391,8 @@ const CreatePost = ({ editPost, onPostSaved, onCancelEdit }) => {
       </div>
 
       <div className="card-footer">
-        <button 
-          className="btn btn-primary" 
+        <button
+          className="btn btn-primary"
           disabled={loading}
           onClick={handleSubmit}
         >
@@ -199,7 +403,8 @@ const CreatePost = ({ editPost, onPostSaved, onCancelEdit }) => {
   );
 };
 
-// Main PostsManager Component
+/* ================= PostsManager ================= */
+
 const PostsManager = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -216,89 +421,54 @@ const PostsManager = () => {
         setPosts(data.posts || []);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
         toast.error("Failed to load posts");
         setLoading(false);
       });
   };
 
-  const handleDelete = async (postId) => {
-    if (!window.confirm("Are you sure you want to delete this post?")) return;
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this post?")) return;
 
-    try {
-      const res = await fetch(
-        `http://localhost:5000/api/posts/${postId}`,
-        { method: "DELETE" }
-      );
+    const res = await fetch(`http://localhost:5000/api/posts/${id}`, {
+      method: "DELETE",
+    });
+    const data = await res.json();
 
-      const data = await res.json();
-
-      if (data.success) {
-        setPosts((prev) => prev.filter((p) => p._id !== postId));
-        toast.success("Post deleted successfully! 🗑️");
-        
-        // If we're editing this post, cancel the edit
-        if (editPost && editPost._id === postId) {
-          setEditPost(null);
-        }
-      } else {
-        toast.error("Failed to delete post");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Error deleting post");
+    if (data.success) {
+      setPosts((prev) => prev.filter((p) => p._id !== id));
+      toast.success("Post deleted");
+      if (editPost?._id === id) setEditPost(null);
+    } else {
+      toast.error("Delete failed");
     }
   };
 
-  const handleEdit = (post) => {
-    setEditPost(post);
-  };
-
-  const handlePostSaved = (updatedPost) => {
+  const handlePostSaved = (post) => {
     if (editPost) {
-      // Update existing post
       setPosts((prev) =>
-        prev.map((p) => (p._id === updatedPost._id ? updatedPost : p))
+        prev.map((p) => (p._id === post._id ? post : p))
       );
       setEditPost(null);
     } else {
-      // Add new post
-      fetchPosts(); // Refresh the list
+      fetchPosts();
     }
-  };
-
-  const handleCancelEdit = () => {
-    setEditPost(null);
   };
 
   return (
     <div className="container py-4">
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
-      
+      <ToastContainer position="top-center" autoClose={3000} />
+
       <div className="row g-4">
-        {/* Create/Edit Section */}
-        <div className="col-12 col-lg-4">
+        <div className="col-12 col-lg-6">
           <CreatePost
             editPost={editPost}
             onPostSaved={handlePostSaved}
-            onCancelEdit={handleCancelEdit}
+            onCancelEdit={() => setEditPost(null)}
           />
         </div>
 
-        {/* Posts List */}
-        <div className="col-12 col-lg-8">
+        <div className="col-12 col-lg-6">
           <div className="card">
             <div className="card-header">
               <h3 className="card-title">Blogs</h3>
@@ -306,16 +476,16 @@ const PostsManager = () => {
 
             <div className="card-body">
               {loading ? (
-                <p>Loading posts...</p>
+                <p>Loading...</p>
               ) : posts.length === 0 ? (
-                <p className="text-muted">No posts yet. Create your first post!</p>
+                <p className="text-muted">No posts yet.</p>
               ) : (
                 <div className="posts-scroll-container">
                   {posts.map((post) => (
                     <PostCard
                       key={post._id}
                       post={post}
-                      onEdit={handleEdit}
+                      onEdit={setEditPost}
                       onDelete={handleDelete}
                     />
                   ))}
@@ -331,19 +501,10 @@ const PostsManager = () => {
           display: flex;
           gap: 1rem;
           overflow-x: auto;
-          padding: 0.5rem 0;
         }
-
         .post-card {
           min-width: 280px;
           max-width: 280px;
-        }
-
-        @media (max-width: 768px) {
-          .post-card {
-            min-width: 250px;
-            max-width: 250px;
-          }
         }
       `}</style>
     </div>

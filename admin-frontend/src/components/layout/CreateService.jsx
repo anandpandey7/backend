@@ -1,4 +1,42 @@
 import { useEffect, useState } from "react";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+
+
+class MyUploadAdapter {
+  constructor(loader) {
+    this.loader = loader;
+  }
+
+  async upload() {
+    const file = await this.loader.file;
+    const data = new FormData();
+    data.append("upload", file);
+
+    const res = await fetch("http://localhost:5000/api/ckeditor/upload", {
+      method: "POST",
+      body: data,
+    });
+
+    const result = await res.json();
+
+    if (!result.url) {
+      throw new Error("Upload failed");
+    }
+
+    return {
+      default: result.url,
+    };
+  }
+
+  abort() {}
+}
+
+function MyCustomUploadAdapterPlugin(editor) {
+  editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
+    return new MyUploadAdapter(loader);
+  };
+}
 
 const CreateService = ({ editService, onSaved, onCancel }) => {
   const [title, setTitle] = useState("");
@@ -50,7 +88,7 @@ const CreateService = ({ editService, onSaved, onCancel }) => {
   const fd = new FormData();
   fd.append("title", title.trim());
   fd.append("description", description.trim());
-  fd.append("longDescription", longDescription.trim());
+  fd.append("longDescription", longDescription);
   if (thumbnail) fd.append("thumbnail", thumbnail);
 
   try {
@@ -133,14 +171,20 @@ const CreateService = ({ editService, onSaved, onCancel }) => {
 
         <div className="mb-3">
           <label className="form-label">Long Description *</label>
-          <textarea
-            className="form-control"
-            rows="4"
-            placeholder="Detailed description"
-            value={longDescription}
-            onChange={(e) => setLongDescription(e.target.value)}
+          <CKEditor
+            editor={ClassicEditor}
+            data={longDescription}
+            config={{
+              licenseKey: "GPL",
+              extraPlugins: [MyCustomUploadAdapterPlugin],
+            }}
+            onChange={(event, editor) => {
+              const data = editor.getData();
+              setLongDescription(data);
+            }}
           />
         </div>
+
 
         <div className="mb-3">
           <label className="form-label">

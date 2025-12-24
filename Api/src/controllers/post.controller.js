@@ -1,20 +1,20 @@
-import  Post from "../models/post.js";
-import { postSchema }  from "../validators/post.schema.js";
+import Post from "../models/post.js";
+import { postSchema } from "../validators/post.schema.js";
 import path from "path";
 import { fileURLToPath } from "url";
-import fs from "fs";  
+import fs from "fs";
+import extractImageUrls from "../utils/extractImageUrls.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
 // ➕ Add Post (Admin)
 export const addPost = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, projectLongDescription } = req.body;
 
     // Zod validation
-    const parsed = postSchema.safeParse({ title, description });
+    const parsed = postSchema.safeParse({ title, description, projectLongDescription });
     if (!parsed.success) {
       return res.status(400).json({
         success: false,
@@ -32,6 +32,7 @@ export const addPost = async (req, res) => {
     const post = new Post({
       title,
       description,
+      projectLongDescription,
       image: `/uploads/posts/${req.file.filename}`
     });
 
@@ -68,19 +69,13 @@ export const getPosts = async (req, res) => {
   }
 };
 
+/* =========================
+   ✏️ Edit Post
+========================= */
 export const editPost = async (req, res) => {
   try {
-    const {id} = req.params;
-    const { title,description } = req.body;
-
-    // Validate text fields (image optional)
-    const parsed = postSchema.safeParse({ title, description });
-    if (!parsed.success) {
-      return res.status(400).json({
-        success: false,
-        errors: parsed.error.errors
-      });
-    }
+    const { id } = req.params;
+    const { title, description, projectLongDescription } = req.body;
 
     const post = await Post.findById(id);
     if (!post) {
@@ -90,21 +85,53 @@ export const editPost = async (req, res) => {
       });
     }
 
-    // If new image uploaded → delete old image
-    if (req.file) {
-      const oldImagePath = path.join(
-        __dirname,
-        "..",
-        post.image
-      );
+    // Validate merged data
+    const parsed = postSchema.safeParse({
+      title: title || post.title,
+      description: description || post.description,
+      projectLongDescription: projectLongDescription || post.projectLongDescription
+    });
+    if (!parsed.success) {
+      return res.status(400).json({
+        success: false,
+        errors: parsed.error.errors
+      });
+    }
 
+    /* =========================
+       🖼️ Handle main image replace
+    ========================= */
+    if (req.file) {
+      const oldImagePath = path.join(__dirname, "..", post.image);
       if (fs.existsSync(oldImagePath)) {
         fs.unlinkSync(oldImagePath);
       }
-
       post.image = `/uploads/posts/${req.file.filename}`;
     }
 
+    /* =========================
+       📝 Handle projectLongDescription images (CKEditor)
+    ========================= */
+    if (projectLongDescription && projectLongDescription !== post.projectLongDescription) {
+      const oldImages = extractImageUrls(post.projectLongDescription || "");
+      const newImages = extractImageUrls(projectLongDescription);
+
+      // Images to delete = in old but not in new
+      const removed = oldImages.filter(url => !newImages.includes(url));
+
+      removed.forEach(imgUrl => {
+        const imgPath = path.join(__dirname, "..", imgUrl);
+        if (fs.existsSync(imgPath)) {
+          fs.unlinkSync(imgPath);
+        }
+      });
+
+      post.projectLongDescription = projectLongDescription;
+    }
+
+    /* =========================
+       ✏️ Update other fields
+    ========================= */
     post.title = title;
     post.description = description;
 
@@ -124,28 +151,43 @@ export const editPost = async (req, res) => {
   }
 };
 
-
+/* =========================
+   🗑️ Delete Post
+========================= */
 export const deletePost = async (req, res) => {
   try {
-    const {id} = req.params;
+    const { id } = req.params;
 
     const post = await Post.findById(id);
-    if ( !post ) {
+    if (!post) {
       return res.status(404).json({
         success: false,
         message: "Post not found"
       });
     }
 
-    // Delet logic
-    const imagePath = path.join(
-      __dirname,
-      "..",
-      post.image
-    );
+    /* =========================
+       🖼️ Delete main post image
+    ========================= */
+    if (post.image) {
+      const imagePath = path.join(__dirname, "..", post.image);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    }
 
-    if (fs.existsSync(imagePath)) {
-      fs.unlinkSync(imagePath);
+    /* =========================
+       📝 Delete CKEditor images from projectLongDescription
+    ========================= */
+    if (post.projectLongDescription) {
+      const descImages = extractImageUrls(post.projectLongDescription);
+
+      descImages.forEach(imgUrl => {
+        const imgPath = path.join(__dirname, "..", imgUrl);
+        if (fs.existsSync(imgPath)) {
+          fs.unlinkSync(imgPath);
+        }
+      });
     }
 
     await post.deleteOne();
@@ -162,4 +204,3 @@ export const deletePost = async (req, res) => {
     });
   }
 };
-

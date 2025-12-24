@@ -10,6 +10,9 @@ const postSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    projectLongDescription: {
+      type: String, // will store HTML from CKEditor
+    },
     image: {
       type: String, // URL/path
       required: true

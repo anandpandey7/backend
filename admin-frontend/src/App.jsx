@@ -8,7 +8,7 @@ import Country from './components/layout/country';
 import Footer from './components/layout/footer';
 import Header from './components/layout/header';
 import ServicesManager from './components/layout/servicesManager';
-import PortfolioManager from './components/layout/portfoliomanager';
+import PortfolioManager from './components/layout/portfolioManager';
 import TestimonialsManager from './components/layout/testimonialsManager';
 import ClientsManager from './components/layout/ClientsManager';
 import InquiriesManager from './components/layout/InquiriesManager';
