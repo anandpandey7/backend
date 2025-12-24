@@ -7,6 +7,7 @@ export const clientProjectSchema = z.object({
 
   projectName: z.string().min(1, "Project name is required"),
   projectDescription: z.string().min(1, "Project description is required"),
+  projectLongDescription: z.string().optional(), // For Storing HTML which will display on click
 
   startDate: z.string().optional(),
   endDate: z.string().optional(),

@@ -8,6 +8,10 @@ const clientProjectSchema = new mongoose.Schema(
 
     projectName: { type: String, required: true, trim: true },
     projectDescription: { type: String, required: true },
+    projectLongDescription: {
+      type: String, // will store HTML from CKEditor
+    },
+
 
     startDate: { type: Date },
     endDate: { type: Date },

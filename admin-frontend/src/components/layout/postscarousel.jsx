@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import PostCard from "./postcard.jsx";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic"
 
 const PostsHorizontalSection = () => {
   const [posts, setPosts] = useState([]);

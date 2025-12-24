@@ -1,5 +1,81 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+
+/* 🔌 Base64 Upload Adapter */
+class Base64UploadAdapter {
+  constructor(loader) {
+    this.loader = loader;
+  }
+
+  upload() {
+    return this.loader.file.then(
+      (file) =>
+        new Promise((resolve, reject) => {
+          const reader = new FileReader();
+
+          reader.onload = () => {
+            resolve({
+              default: reader.result, // base64 data URL
+            });
+          };
+
+          reader.onerror = (error) => {
+            reject(error);
+          };
+
+          reader.readAsDataURL(file);
+        })
+    );
+  }
+
+  abort() {
+    // Abort the upload process if needed
+  }
+}
+
+function Base64UploadAdapterPlugin(editor) {
+  editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
+    return new Base64UploadAdapter(loader);
+  };
+}
+
+class MyUploadAdapter {
+  constructor(loader) {
+    this.loader = loader;
+  }
+
+  async upload() {
+    const file = await this.loader.file;
+    const data = new FormData();
+    data.append("upload", file);
+
+    const res = await fetch("http://localhost:5000/api/ckeditor/upload", {
+      method: "POST",
+      body: data,
+    });
+
+    const result = await res.json();
+
+    if (!result.url) {
+      throw new Error("Upload failed");
+    }
+
+    return {
+      default: result.url,
+    };
+  }
+
+  abort() {}
+}
+
+function MyCustomUploadAdapterPlugin(editor) {
+  editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
+    return new MyUploadAdapter(loader);
+  };
+}
+
 
 const ClientForm = ({ editClient, onSaved, onCancel }) => {
   const [form, setForm] = useState({
@@ -8,6 +84,7 @@ const ClientForm = ({ editClient, onSaved, onCancel }) => {
     phone: "",
     projectName: "",
     projectDescription: "",
+    projectLongDescription: "", // 👈 Stores HTML with base64 images
     startDate: "",
     endDate: "",
     budget: "",
@@ -27,6 +104,7 @@ const ClientForm = ({ editClient, onSaved, onCancel }) => {
         phone: editClient.phone || "",
         projectName: editClient.projectName || "",
         projectDescription: editClient.projectDescription || "",
+        projectLongDescription: editClient.projectLongDescription || "",
         startDate: editClient.startDate?.substring(0, 10) || "",
         endDate: editClient.endDate?.substring(0, 10) || "",
         budget: editClient.budget || "",
@@ -42,6 +120,7 @@ const ClientForm = ({ editClient, onSaved, onCancel }) => {
         phone: "",
         projectName: "",
         projectDescription: "",
+        projectLongDescription: "",
         startDate: "",
         endDate: "",
         budget: "",
@@ -66,7 +145,7 @@ const ClientForm = ({ editClient, onSaved, onCancel }) => {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => {
         fd.append(k, v || "");
-    });
+      });
 
       if (logo) fd.append("logo", logo);
       gallery.forEach((img) => fd.append("gallery", img));
@@ -136,7 +215,7 @@ const ClientForm = ({ editClient, onSaved, onCancel }) => {
           ))}
 
           <div className="mb-2">
-            <label className="form-label">Project Description</label>
+            <label className="form-label">Project Description (Short)</label>
             <textarea
               className="form-control"
               rows="2"
@@ -144,6 +223,29 @@ const ClientForm = ({ editClient, onSaved, onCancel }) => {
               value={form.projectDescription}
               onChange={handleChange}
             />
+          </div>
+
+          {/* ✅ Long desc with CKEditor */}
+          <div className="mb-3">
+            <label className="form-label">Long Project Description</label>
+            <CKEditor
+              editor={ClassicEditor}
+              data={form.projectLongDescription}
+              config={{
+                licenseKey: "GPL",
+                extraPlugins: [MyCustomUploadAdapterPlugin],
+              }}
+              onChange={(e, editor) => {
+                const data = editor.getData();
+                setForm((prevForm) => ({
+                  ...prevForm,
+                  projectLongDescription: data,
+                }));
+              }}
+            />
+            <small className="text-muted">
+              You can upload images directly in the editor.
+            </small>
           </div>
 
           <div className="row">
@@ -173,6 +275,7 @@ const ClientForm = ({ editClient, onSaved, onCancel }) => {
             <label className="form-label">Budget</label>
             <input
               type="number"
+              step="1000"
               className="form-control"
               name="budget"
               value={form.budget}
@@ -186,7 +289,7 @@ const ClientForm = ({ editClient, onSaved, onCancel }) => {
               <label className="form-label">Rating (optional)</label>
               <input
                 type="number"
-                step="0.1"
+                step="0.5"
                 min="0"
                 max="5"
                 className="form-control"

@@ -28,6 +28,7 @@ import testimonialRoutes from "./routes/testimonial.routes.js";
 import serviceRoutes from "./routes/service.routes.js";
 import inquiryRoutes from "./routes/inquiry.routes.js";
 import settingRoutes from "./routes/setting.routes.js";
+import ckeditorRoutes from "./routes/ckeditor.routes.js";
 
 
 
@@ -71,7 +72,7 @@ app.use("/api/testimonials",testimonialRoutes);
 app.use("/api/services",serviceRoutes);
 app.use("/api/inquiries", inquiryRoutes);
 app.use("/api/settings",settingRoutes);
-
+app.use("/api/ckeditor", ckeditorRoutes);
 
 /* =====================
    Health Check

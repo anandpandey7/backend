@@ -52,6 +52,7 @@ export const getClientsWithPortfolio = async (req, res) => {
 export const addPortfolio = async (req, res) => {
   try {
     const { id } = req.params;
+    const { startDate, endDate, projectDescription } = req.body;
 
     const project = await ClientProject.findById(id);
     if (!project) {
@@ -73,6 +74,12 @@ export const addPortfolio = async (req, res) => {
     );
 
     project.gallery = newImages;
+
+    // 📝 update portfolio fields
+    if (startDate) project.startDate = new Date(startDate);
+    if (endDate) project.endDate = new Date(endDate);
+    if (projectDescription) project.projectDescription = projectDescription;
+
     await project.save();
 
     res.json({
@@ -95,6 +102,7 @@ export const addPortfolio = async (req, res) => {
 export const editPortfolio = async (req, res) => {
   try {
     const { id } = req.params;
+    const { startDate, endDate, projectDescription } = req.body;
 
     const project = await ClientProject.findById(id);
     if (!project) {
@@ -104,20 +112,25 @@ export const editPortfolio = async (req, res) => {
       });
     }
 
-    // 📝 Update text fields (example)
-    if (req.body.title) project.title = req.body.title;
-    if (req.body.description) project.description = req.body.description;
+    // 📝 update text/date fields
+    if (projectDescription)
+      project.projectDescription = projectDescription;
 
-    // 🖼️ If new gallery images are uploaded
+    if (startDate)
+      project.startDate = new Date(startDate);
+
+    if (endDate)
+      project.endDate = new Date(endDate);
+
+    // 🖼️ If new gallery uploaded → replace old
     if (req.files?.gallery?.length) {
 
-      // delete old images
+      // delete old gallery images
       project.gallery.forEach(img => {
         const imgPath = path.join(__dirname, "..", img);
         if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
       });
 
-      // save new images
       const newImages = req.files.gallery.map(
         f => `/uploads/clients/${f.filename}`
       );

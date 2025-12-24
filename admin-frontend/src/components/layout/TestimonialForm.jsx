@@ -72,19 +72,41 @@ const TestimonialForm = ({ editClient, onSaved, onCancel }) => {
             />
           </div>
 
+          {/* edited for new features */}
           <div className="mb-3">
-            <label className="form-label">Rating (0 - 5)</label>
-            <input
-              type="number"
-              step="0.1"
-              min="0"
-              max="5"
-              className="form-control"
+            <label className="form-label">Rating (0 – 5)</label>
+
+            <select
+              className="form-control mb-2"
               value={rating}
               onChange={(e) => setRating(e.target.value)}
-              required
-            />
+            >
+              <option value="">Select rating</option>
+              {[...Array(11)].map((_, i) => {
+                const value = (i * 0.5).toFixed(1);
+                return (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                );
+              })}
+              <option value="custom">Custom</option>
+            </select>
+
+            {rating === "custom" && (
+              <input
+                type="number"
+                step="0.5"
+                min="0"
+                max="5"
+                className="form-control"
+                placeholder="Enter rating (0–5)"
+                onChange={(e) => setRating(e.target.value)}
+                required
+              />
+            )}
           </div>
+
 
           <div className="d-flex gap-2">
             <button className="btn btn-primary" type="submit">

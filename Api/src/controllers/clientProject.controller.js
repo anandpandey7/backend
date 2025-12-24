@@ -3,6 +3,7 @@ import { clientProjectSchema } from "../validators/clientProject.schema.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import  extractImageUrls from "../utils/extractImageUrls.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -87,7 +88,7 @@ export const editClientProject = async (req, res) => {
       });
     }
 
-    // validate only required text fields
+    // validate merged data
     const parsed = clientProjectSchema.safeParse({
       ...project.toObject(),
       ...req.body
@@ -99,14 +100,18 @@ export const editClientProject = async (req, res) => {
       });
     }
 
-    // Replace logo if new uploaded
+    /* =========================
+       🖼️ Handle logo replace
+    ========================= */
     if (req.files?.logo?.[0]) {
       const oldLogo = path.join(__dirname, "..", project.logo);
       if (fs.existsSync(oldLogo)) fs.unlinkSync(oldLogo);
       project.logo = `/uploads/clients/${req.files.logo[0].filename}`;
     }
 
-    // Append new gallery images if provided
+    /* =========================
+       🖼️ Handle gallery append
+    ========================= */
     if (req.files?.gallery?.length) {
       const newGallery = req.files.gallery.map(
         f => `/uploads/clients/${f.filename}`
@@ -114,6 +119,27 @@ export const editClientProject = async (req, res) => {
       project.gallery.push(...newGallery);
     }
 
+    /* =========================
+       📝 Handle longDescription images
+    ========================= */
+    if (req.body.longDescription) {
+      const oldImages = extractImageUrls(project.longDescription);
+      const newImages = extractImageUrls(req.body.longDescription);
+
+      // images to delete = in old but not in new
+      const removed = oldImages.filter(url => !newImages.includes(url));
+
+      removed.forEach(imgUrl => {
+        const imgPath = path.join(__dirname, "..", imgUrl);
+        if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
+      });
+
+      project.longDescription = req.body.longDescription;
+    }
+
+    /* =========================
+       ✏️ Assign other fields
+    ========================= */
     Object.assign(project, {
       ...req.body,
       budget: req.body.budget ? Number(req.body.budget) : project.budget,
@@ -136,6 +162,7 @@ export const editClientProject = async (req, res) => {
   }
 };
 
+
 // Delete
 export const deleteClientProject = async (req, res) => {
   try {
@@ -149,15 +176,35 @@ export const deleteClientProject = async (req, res) => {
       });
     }
 
-    // delete logo
-    const logoPath = path.join(__dirname, "..", project.logo);
-    if (fs.existsSync(logoPath)) fs.unlinkSync(logoPath);
+    /* =========================
+       🖼️ Delete logo
+    ========================= */
+    if (project.logo) {
+      const logoPath = path.join(__dirname, "..", project.logo);
+      if (fs.existsSync(logoPath)) fs.unlinkSync(logoPath);
+    }
 
-    // delete gallery images
-    project.gallery.forEach(img => {
-      const imgPath = path.join(__dirname, "..", img);
-      if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
-    });
+    /* =========================
+       🖼️ Delete gallery images
+    ========================= */
+    if (project.gallery?.length) {
+      project.gallery.forEach(img => {
+        const imgPath = path.join(__dirname, "..", img);
+        if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
+      });
+    }
+
+    /* =========================
+       📝 Delete CKEditor images
+    ========================= */
+    if (project.longDescription) {
+      const descImages = extractImageUrls(project.longDescription);
+
+      descImages.forEach(imgUrl => {
+        const imgPath = path.join(__dirname, "..", imgUrl);
+        if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
+      });
+    }
 
     await project.deleteOne();
 
