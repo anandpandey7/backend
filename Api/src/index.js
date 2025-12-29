@@ -29,6 +29,7 @@ import serviceRoutes from "./routes/service.routes.js";
 import inquiryRoutes from "./routes/inquiry.routes.js";
 import settingRoutes from "./routes/setting.routes.js";
 import ckeditorRoutes from "./routes/ckeditor.routes.js";
+import productRoutes from "./routes/product.routes.js";
 
 
 
@@ -73,7 +74,7 @@ app.use("/api/services",serviceRoutes);
 app.use("/api/inquiries", inquiryRoutes);
 app.use("/api/settings",settingRoutes);
 app.use("/api/ckeditor", ckeditorRoutes);
-
+app.use("/api/products", productRoutes);
 /* =====================
    Health Check
 ===================== */

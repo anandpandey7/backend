@@ -69,9 +69,11 @@ const PortfolioForm = ({ editClient, onSaved, onCancel }) => {
           <input
             type="file"
             multiple
+            accept="image/*"
             className="form-control mb-3"
             onChange={(e) => setGallery([...e.target.files])}
           />
+
           <div className="mb-2">
             <label className="form-label">Project Description</label>
             <textarea

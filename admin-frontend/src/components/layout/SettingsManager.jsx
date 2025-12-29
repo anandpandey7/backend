@@ -19,10 +19,18 @@ const defaultSocial = {
   discord: "",
 };
 
+const defaultColours = {
+  primary: "#000000",
+  secondary: "#FFFFFF",
+  accent: "#FF0000",
+  surface: "#F5F5F5",
+};
+
 const API = "http://localhost:5000/api/settings";
 
 const SettingsManager = () => {
   const [setting, setSetting] = useState(null);
+  const [categoryInput, setCategoryInput] = useState(""); // 🔹 Local state for category typing
   const [form, setForm] = useState({
     companyName: "",
     phoneNo: "",
@@ -30,6 +38,8 @@ const SettingsManager = () => {
     location: "",
     description: "",
     social: defaultSocial,
+    colours: defaultColours,
+    productCategory: [], // 🔹 Initialize as empty array
   });
 
   const [logo, setLogo] = useState(null);
@@ -77,13 +87,13 @@ const SettingsManager = () => {
         location: setting.location || "",
         description: setting.description || "",
         social: { ...defaultSocial, ...setting.social },
+        colours: { ...defaultColours, ...setting.colours },
+        productCategory: setting.productCategory || [], // 🔹 Sync array
       });
       setLogo(null);
     }
 
-    if (!edit) {
-      resetForm();
-    }
+    if (!edit) resetForm();
   }, [edit, setting]);
 
   const resetForm = () => {
@@ -94,8 +104,11 @@ const SettingsManager = () => {
       location: "",
       description: "",
       social: defaultSocial,
+      colours: defaultColours,
+      productCategory: [], // 🔹 Reset array
     });
     setLogo(null);
+    setCategoryInput("");
   };
 
   // 🔹 Handlers
@@ -107,6 +120,31 @@ const SettingsManager = () => {
     setForm({
       ...form,
       social: { ...form.social, [e.target.name]: e.target.value },
+    });
+  };
+
+  const handleColourChange = (e) => {
+    setForm({
+      ...form,
+      colours: { ...form.colours, [e.target.name]: e.target.value },
+    });
+  };
+
+  // 🔹 🔹 Array Handlers (New)
+  const addCategory = () => {
+    if (categoryInput.trim()) {
+      setForm({
+        ...form,
+        productCategory: [...form.productCategory, categoryInput.trim()],
+      });
+      setCategoryInput("");
+    }
+  };
+
+  const removeCategory = (indexToRemove) => {
+    setForm({
+      ...form,
+      productCategory: form.productCategory.filter((_, index) => index !== indexToRemove),
     });
   };
 
@@ -124,6 +162,8 @@ const SettingsManager = () => {
       fd.append("location", form.location);
       fd.append("description", form.description);
       fd.append("social", JSON.stringify(form.social));
+      fd.append("colours", JSON.stringify(form.colours));
+      fd.append("productCategory", JSON.stringify(form.productCategory)); // 🔹 Send array as string
       if (logo) fd.append("companyLogo", logo);
 
       const method = setting ? "PUT" : "POST";
@@ -176,39 +216,37 @@ const SettingsManager = () => {
   // ---------------- UI ----------------
 
   if (loading) {
-  return (
-    <>
-      <ToastContainer position="top-center" autoClose={3000} />
-      <p className="text-center mt-4">Loading settings...</p>
-    </>
-  );
-}
+    return (
+      <>
+        <ToastContainer position="top-center" autoClose={3000} />
+        <p className="text-center mt-4">Loading settings...</p>
+      </>
+    );
+  }
 
-if (error) {
-  return (
-    <div className="container py-4 text-center">
-      <ToastContainer position="top-center" autoClose={3000} />
-      <div className="alert alert-danger">
-        {error}
-        <div className="mt-3">
-          <button className="btn btn-outline-danger" onClick={fetchSetting}>
-            Retry
-          </button>
+  if (error) {
+    return (
+      <div className="container py-4 text-center">
+        <ToastContainer position="top-center" autoClose={3000} />
+        <div className="alert alert-danger">
+          {error}
+          <div className="mt-3">
+            <button className="btn btn-outline-danger" onClick={fetchSetting}>
+              Retry
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   return (
     <div className="container py-4">
-        <ToastContainer position="top-center" autoClose={3000} />
-    
-        <div>
-        <h2>Settings</h2>
-        </div>
+      <ToastContainer position="top-center" autoClose={3000} />
 
-      {/* 👉 Show Form if no setting OR edit mode */}
+      <h2>Settings</h2>
+
+      {/* 👉 Form */}
       {!setting || edit ? (
         <div className="card shadow-sm">
           <div className="card-header d-flex justify-content-between">
@@ -252,7 +290,41 @@ if (error) {
                 />
               </div>
 
-              <h6 className="mt-3">Social Links</h6>
+              {/* 🔹 Product Categories Form Section */}
+              <div className="mb-3">
+                <label className="form-label">Product Categories</label>
+                <div className="input-group mb-2">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Enter category name"
+                    value={categoryInput}
+                    onChange={(e) => setCategoryInput(e.target.value)}
+                  />
+                  <button
+                    className="btn btn-outline-primary"
+                    type="button"
+                    onClick={addCategory}
+                  >
+                    Add
+                  </button>
+                </div>
+                <div className="d-flex flex-wrap gap-2">
+                  {form.productCategory.map((cat, index) => (
+                    <span key={index} className="badge bg-primary d-flex align-items-center gap-2">
+                      {cat}
+                      <button
+                        type="button"
+                        className="btn-close btn-close-white"
+                        style={{ fontSize: "0.5rem" }}
+                        onClick={() => removeCategory(index)}
+                      ></button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <h6 className="mt-4">Social Links</h6>
               <div className="row">
                 {Object.keys(form.social).map((key) => (
                   <div className="col-12 col-md-6 mb-2" key={key}>
@@ -263,6 +335,22 @@ if (error) {
                       name={key}
                       value={form.social[key]}
                       onChange={handleSocialChange}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <h6 className="mt-3">Theme Colours</h6>
+              <div className="row">
+                {Object.keys(form.colours).map((key) => (
+                  <div className="col-6 col-md-3 mb-2" key={key}>
+                    <label className="form-label text-capitalize">{key}</label>
+                    <input
+                      type="color"
+                      className="form-control form-control-color"
+                      name={key}
+                      value={form.colours[key]}
+                      onChange={handleColourChange}
                     />
                   </div>
                 ))}
@@ -335,6 +423,19 @@ if (error) {
                 <p><strong>Location:</strong> {setting.location}</p>
                 <p><strong>Description:</strong> {setting.description}</p>
 
+                {/* 🔹 Product Categories View Section */}
+                <hr />
+                <h6>Product Categories</h6>
+                <div className="d-flex flex-wrap gap-2 mb-3">
+                  {setting.productCategory && setting.productCategory.length > 0 ? (
+                    setting.productCategory.map((cat, i) => (
+                      <span key={i} className="badge bg-secondary">{cat}</span>
+                    ))
+                  ) : (
+                    <span className="text-muted small">No categories defined.</span>
+                  )}
+                </div>
+
                 <hr />
                 <h6>Social Links</h6>
                 <ul className="list-unstyled">
@@ -350,6 +451,26 @@ if (error) {
                       )
                   )}
                 </ul>
+
+                <hr />
+                <h6>Theme Colours</h6>
+                <div className="d-flex gap-3 flex-wrap">
+                  {Object.entries(setting.colours || {}).map(([k, v]) => (
+                    <div key={k} className="text-center">
+                      <div
+                        style={{
+                          width: 30,
+                          height: 30,
+                          background: v,
+                          borderRadius: "50%",
+                          border: "1px solid #ccc",
+                          margin: "0 auto",
+                        }}
+                      />
+                      <small>{k}</small>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

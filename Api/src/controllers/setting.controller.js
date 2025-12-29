@@ -7,7 +7,9 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// for Creation - only one settind's data exist
+/* =========================
+   ➕ Create Settings (only one)
+========================= */
 export const createSetting = async (req, res) => {
   try {
     const exists = await Setting.findOne();
@@ -18,8 +20,7 @@ export const createSetting = async (req, res) => {
       });
     }
 
-    //new learning *******
-    // Handle social when sent as JSON string
+    // 🧩 Parse social JSON if sent as string
     if (req.body.social && typeof req.body.social === "string") {
       try {
         req.body.social = JSON.parse(req.body.social);
@@ -29,7 +30,6 @@ export const createSetting = async (req, res) => {
             path.join(__dirname, "../uploads/settings", req.file.filename)
           );
         }
-
         return res.status(400).json({
           success: false,
           message: "Invalid social JSON format"
@@ -37,16 +37,47 @@ export const createSetting = async (req, res) => {
       }
     }
 
-    const parsed = settingSchema.safeParse(req.body);
-    if (!parsed.success) {
-        // console.log("ZOD ERROR:", parsed.error.format());
-        // console.log("BODY:", req.body);
+    // 🧩 Parse productCategory JSON if sent as string
+    if (req.body.productCategory && typeof req.body.productCategory === "string") {
+      try {
+        req.body.productCategory = JSON.parse(req.body.productCategory);
+      } catch {
         if (req.file) {
           fs.unlinkSync(
             path.join(__dirname, "../uploads/settings", req.file.filename)
           );
         }
+        return res.status(400).json({
+          success: false,
+          message: "Invalid productCategory JSON format"
+        });
+      }
+    }
 
+    // 🧩 Parse colours JSON if sent as string
+    if (req.body.colours && typeof req.body.colours === "string") {
+      try {
+        req.body.colours = JSON.parse(req.body.colours);
+      } catch {
+        if (req.file) {
+          fs.unlinkSync(
+            path.join(__dirname, "../uploads/settings", req.file.filename)
+          );
+        }
+        return res.status(400).json({
+          success: false,
+          message: "Invalid colours JSON format"
+        });
+      }
+    }
+
+    const parsed = settingSchema.safeParse(req.body);
+    if (!parsed.success) {
+      if (req.file) {
+        fs.unlinkSync(
+          path.join(__dirname, "../uploads/settings", req.file.filename)
+        );
+      }
       return res.status(400).json({
         success: false,
         errors: parsed.error.errors
@@ -82,7 +113,10 @@ export const createSetting = async (req, res) => {
   }
 };
 
-// get 
+
+/* =========================
+   📥 Get Settings
+========================= */
 export const getSetting = async (req, res) => {
   try {
     const setting = await Setting.findOne();
@@ -92,11 +126,13 @@ export const getSetting = async (req, res) => {
   }
 };
 
-/* ✏️ Update Settings (partial) */
+
+/* =========================
+   ✏️ Update Settings (partial)
+========================= */
 export const updateSetting = async (req, res) => {
   try {
-    
-    // Handle social when sent as JSON string
+    // 🧩 Parse social JSON
     if (req.body.social && typeof req.body.social === "string") {
       try {
         req.body.social = JSON.parse(req.body.social);
@@ -106,7 +142,6 @@ export const updateSetting = async (req, res) => {
             path.join(__dirname, "../uploads/settings", req.file.filename)
           );
         }
-
         return res.status(400).json({
           success: false,
           message: "Invalid social JSON format"
@@ -114,6 +149,39 @@ export const updateSetting = async (req, res) => {
       }
     }
 
+    // 🧩 Parse colours JSON
+    if (req.body.colours && typeof req.body.colours === "string") {
+      try {
+        req.body.colours = JSON.parse(req.body.colours);
+      } catch {
+        if (req.file) {
+          fs.unlinkSync(
+            path.join(__dirname, "../uploads/settings", req.file.filename)
+          );
+        }
+        return res.status(400).json({
+          success: false,
+          message: "Invalid colours JSON format"
+        });
+      }
+    }
+
+    // 🧩 Parse productCategory JSON if sent as string
+    if (req.body.productCategory && typeof req.body.productCategory === "string") {
+      try {
+        req.body.productCategory = JSON.parse(req.body.productCategory);
+      } catch {
+        if (req.file) {
+          fs.unlinkSync(
+            path.join(__dirname, "../uploads/settings", req.file.filename)
+          );
+        }
+        return res.status(400).json({
+          success: false,
+          message: "Invalid productCategory JSON format"
+        });
+      }
+    }
 
     const parsed = settingUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -131,7 +199,7 @@ export const updateSetting = async (req, res) => {
       });
     }
 
-    // If new logo uploaded
+    // 🖼️ Replace logo if uploaded
     if (req.file) {
       const oldPath = path.join(__dirname, "..", setting.companyLogo);
       if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
@@ -151,14 +219,19 @@ export const updateSetting = async (req, res) => {
   }
 };
 
-/* 🗑️ Delete Settings */
+
+/* =========================
+   🗑️ Delete Settings
+========================= */
 export const deleteSetting = async (req, res) => {
   try {
     const setting = await Setting.findOne();
     if (!setting) {
-      return res.status(404).json({ success: false, message: "Settings not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Settings not found"
+      });
     }
-    
 
     const logoPath = path.join(__dirname, "..", setting.companyLogo);
     if (fs.existsSync(logoPath)) fs.unlinkSync(logoPath);

@@ -93,7 +93,9 @@ const InquiriesManager = () => {
           <ToastContainer position="top-center" autoClose={2500} />
           <div className="col-12 col-lg-6">
             <div className="card border-danger">
-              <div className="card-header bg-danger text-white">
+              <div className="card-header bg-danger text-white fs-5"
+              style={{ fontWeight: 600 }}
+              >
                 Unresolved Inquiries ({unresolved.length})
               </div>
               <div className="card-body">
@@ -118,7 +120,9 @@ const InquiriesManager = () => {
           {/* ✅ Resolved */}
           <div className="col-12 col-lg-6">
             <div className="card border-success">
-              <div className="card-header bg-success text-white">
+              <div className="card-header bg-success text-white fs-5"
+              style={{ fontWeight: 600 }}
+              >
                 Resolved Inquiries ({resolved.length})
               </div>
               <div className="card-body">

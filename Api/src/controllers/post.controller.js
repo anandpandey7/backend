@@ -8,7 +8,7 @@ import extractImageUrls from "../utils/extractImageUrls.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ➕ Add Post (Admin)
+// Add Post
 export const addPost = async (req, res) => {
   try {
     const { title, description, projectLongDescription } = req.body;
@@ -52,7 +52,7 @@ export const addPost = async (req, res) => {
   }
 };
 
-// 📥 Get All Posts (Public)
+// Get all Posts
 export const getPosts = async (req, res) => {
   try {
     const posts = await Post.find().sort({ createdAt: -1 });
@@ -69,9 +69,7 @@ export const getPosts = async (req, res) => {
   }
 };
 
-/* =========================
-   ✏️ Edit Post
-========================= */
+// Edit Post
 export const editPost = async (req, res) => {
   try {
     const { id } = req.params;
@@ -151,9 +149,7 @@ export const editPost = async (req, res) => {
   }
 };
 
-/* =========================
-   🗑️ Delete Post
-========================= */
+// Delete post
 export const deletePost = async (req, res) => {
   try {
     const { id } = req.params;

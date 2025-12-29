@@ -73,6 +73,24 @@ export const getClientProjects = async (req, res) => {
   }
 };
 
+export const getSingleClientProject = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const project = await ClientProject.findById(id);
+
+    res.json({
+      success: true,
+      project
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 /* =========================
    ✏️ Edit Project
 ========================= */

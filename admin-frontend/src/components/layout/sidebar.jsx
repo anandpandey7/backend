@@ -5,8 +5,13 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    console.log("User logged out");
-    navigate("/login");
+    // ✅ Clear token
+    localStorage.removeItem("token");
+
+    toast.success("Logged out successfully 👋");
+
+    // ✅ Redirect to login
+    navigate("/login", { replace: true });
   };
 
   return (
@@ -63,6 +68,13 @@ const Sidebar = () => {
               <Link to="/posts" className="nav-link">
                 <i className="nav-icon bi bi-file-text"></i>
                 <p>Blogs</p>
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link to="/products" className="nav-link">
+                <i className="nav-icon bi bi-file-text"></i>
+                <p>Products</p>
               </Link>
             </li>
 

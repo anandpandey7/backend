@@ -3,6 +3,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import { API_BASE_URL } from "../helper/config";
 
 /* ================= CKEditor Upload Adapter ================= */
 
@@ -16,19 +17,28 @@ class MyUploadAdapter {
     const data = new FormData();
     data.append("upload", file);
 
-    const res = await fetch("http://localhost:5000/api/ckeditor/upload", {
+    const res = await fetch(`${API_BASE_URL}/api/ckeditor/upload`, {
       method: "POST",
       body: data,
     });
 
-    const result = await res.json();
-
-    if (!result.url) {
+    if (!res.ok) {
       throw new Error("Upload failed");
     }
 
+    const result = await res.json();
+
+    if (!result.url) {
+      throw new Error("No URL returned from server");
+    }
+
+    // ✅ If backend already sends full URL, don’t double it
+    const imageUrl = result.url.startsWith("http")
+      ? result.url
+      : `${API_BASE_URL}${result.url}`;
+
     return {
-      default: result.url,
+      default: imageUrl,
     };
   }
 

@@ -3,12 +3,12 @@
 export const JWT_SECRET = "your_jwt_secret_key";
 
 // You can add more config here
-export const JWT_EXPIRY = "7d";
+export const JWT_EXPIRY = "1d";
 export const BCRYPT_ROUNDS = 10;
 
 // Or export as default object
 export default {
   JWT_SECRET: "your_jwt_secret_key_change_this_in_production",
-  JWT_EXPIRY: "7d",
+  JWT_EXPIRY: "1d",
   BCRYPT_ROUNDS: 10
 };

@@ -2,44 +2,45 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import { API_BASE_URL } from "../helper/config";
 
 /* 🔌 Base64 Upload Adapter */
-class Base64UploadAdapter {
-  constructor(loader) {
-    this.loader = loader;
-  }
+// class Base64UploadAdapter {
+//   constructor(loader) {
+//     this.loader = loader;
+//   }
 
-  upload() {
-    return this.loader.file.then(
-      (file) =>
-        new Promise((resolve, reject) => {
-          const reader = new FileReader();
+//   upload() {
+//     return this.loader.file.then(
+//       (file) =>
+//         new Promise((resolve, reject) => {
+//           const reader = new FileReader();
 
-          reader.onload = () => {
-            resolve({
-              default: reader.result, // base64 data URL
-            });
-          };
+//           reader.onload = () => {
+//             resolve({
+//               default: reader.result, // base64 data URL
+//             });
+//           };
 
-          reader.onerror = (error) => {
-            reject(error);
-          };
+//           reader.onerror = (error) => {
+//             reject(error);
+//           };
 
-          reader.readAsDataURL(file);
-        })
-    );
-  }
+//           reader.readAsDataURL(file);
+//         })
+//     );
+//   }
 
-  abort() {
-    // Abort the upload process if needed
-  }
-}
+//   abort() {
+//     // Abort the upload process if needed
+//   }
+// }
 
-function Base64UploadAdapterPlugin(editor) {
-  editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
-    return new Base64UploadAdapter(loader);
-  };
-}
+// function Base64UploadAdapterPlugin(editor) {
+//   editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
+//     return new Base64UploadAdapter(loader);
+//   };
+// }
 
 class MyUploadAdapter {
   constructor(loader) {
@@ -51,19 +52,28 @@ class MyUploadAdapter {
     const data = new FormData();
     data.append("upload", file);
 
-    const res = await fetch("http://localhost:5000/api/ckeditor/upload", {
+    const res = await fetch(`${API_BASE_URL}/api/ckeditor/upload`, {
       method: "POST",
       body: data,
     });
 
-    const result = await res.json();
-
-    if (!result.url) {
+    if (!res.ok) {
       throw new Error("Upload failed");
     }
 
+    const result = await res.json();
+
+    if (!result.url) {
+      throw new Error("No URL returned from server");
+    }
+
+    // ✅ If backend already sends full URL, don’t double it
+    const imageUrl = result.url.startsWith("http")
+      ? result.url
+      : `${API_BASE_URL}${result.url}`;
+
     return {
-      default: result.url,
+      default: imageUrl,
     };
   }
 
@@ -132,53 +142,93 @@ const ClientForm = ({ editClient, onSaved, onCancel }) => {
     }
   }, [editClient]);
 
+  // resetting form data 
+  const resetForm = () => {
+  setForm({
+    clientName: "",
+    email: "",
+    phone: "",
+    projectName: "",
+    projectDescription: "",
+    projectLongDescription: "",
+    startDate: "",
+    endDate: "",
+    budget: "",
+    rating: "",
+    feedback: "",
+  });
+
+  setLogo(null);
+  setGallery([]);
+};
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const fd = new FormData();
-      Object.entries(form).forEach(([k, v]) => {
-        fd.append(k, v || "");
-      });
-
-      if (logo) fd.append("logo", logo);
-      gallery.forEach((img) => fd.append("gallery", img));
-
-      const method = editClient ? "PUT" : "POST";
-      const url = editClient
-        ? `http://localhost:5000/api/clients/${editClient._id}`
-        : "http://localhost:5000/api/clients";
-
-      const res = await fetch(url, {
-        method,
-        body: fd,
-      });
-
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        toast.error(data.message || "Save failed");
-        return;
-      }
-
-      toast.success(
-        editClient ? "Client updated successfully ✅" : "Client added successfully 🎉"
-      );
-
-      onSaved();
-    } catch (err) {
-      console.error(err);
-      toast.error("Server error");
-    } finally {
-      setLoading(false);
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Please login again");
+      return;
     }
-  };
+
+    const fd = new FormData();
+    Object.entries(form).forEach(([k, v]) => {
+      fd.append(k, v || "");
+    });
+
+    if (logo) fd.append("logo", logo);
+    gallery.forEach((img) => fd.append("gallery", img));
+
+    const method = editClient ? "PUT" : "POST";
+    const url = editClient
+      ? `http://localhost:5000/api/clients/${editClient._id}`
+      : "http://localhost:5000/api/clients";
+
+    const res = await fetch(url, {
+      method,
+      headers: {
+        Authorization: `Bearer ${token}`, // ✅ middleware needs this
+      },
+      body: fd,
+    });
+
+    const data = await res.json();
+
+    if (res.status === 401) {
+      toast.error(data.message || "Session expired. Please login again.");
+      localStorage.removeItem("token");
+      return;
+    }
+
+    if (!res.ok || !data.success) {
+      toast.error(data.message || "Save failed");
+      return;
+    }
+
+    toast.success(
+      editClient
+        ? "Client updated successfully ✅"
+        : "Client added successfully 🎉"
+    );
+
+    if (!editClient) resetForm();
+
+    onSaved();
+  } catch (err) {
+    console.error(err);
+    toast.error("Server error");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="card">

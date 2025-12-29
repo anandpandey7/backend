@@ -13,8 +13,10 @@ import {
 // ✅ Named exports (matches your routes import)
 export const signup = async (req, res) => {
   try {
+    console.log("Signup request body:", req.body); // Debugging line
     const parsed = adminSignupSchema.safeParse(req.body);
     if (!parsed.success) {
+      console.log("Validation errors:", parsed.error.issues); // Debugging line
       return res.status(400).json({ 
         message: parsed.error.issues[0].message 
       });

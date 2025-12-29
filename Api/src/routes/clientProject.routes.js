@@ -3,7 +3,8 @@ import {
   addClientProject,
   getClientProjects,
   editClientProject,
-  deleteClientProject
+  deleteClientProject,
+  getSingleClientProject
 } from "../controllers/clientProject.controller.js";
 
 import { authMiddleware } from "../middleware/auth.js";
@@ -13,11 +14,13 @@ const router = express.Router();
 
 /* Public */
 router.get("/", getClientProjects);
+// get single client project
+router.get("/:id", getSingleClientProject);
 
 /* Admin */
 router.post(
   "/",
-//   authMiddleware,
+  authMiddleware,
   uploadClientProject.fields([
     { name: "logo", maxCount: 1 },
     { name: "gallery", maxCount: 10 }
@@ -27,7 +30,7 @@ router.post(
 
 router.put(
   "/:id",
-//   authMiddleware,
+  authMiddleware,
   uploadClientProject.fields([
     { name: "logo", maxCount: 1 },
     { name: "gallery", maxCount: 10 }
