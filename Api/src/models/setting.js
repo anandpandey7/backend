@@ -4,6 +4,8 @@ const settingSchema = new mongoose.Schema(
   {
     companyName: { type: String, required: true },
     companyLogo: { type: String, required: true },
+    video1: { type: String, default: "" },
+    video2: { type: String, default: "" },
     phoneNo: { type: String, required: true },
     email: { type: String, required: true },
     location: { type: String, required: true },

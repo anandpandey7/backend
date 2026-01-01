@@ -12,6 +12,11 @@ import ClientsManager from "./components/layout/ClientsManager";
 import InquiriesManager from "./components/layout/InquiriesManager";
 import SettingsManager from "./components/layout/SettingsManager";
 import ProductAdmin from "./components/layout/ProductAdmin";
+import JobAdmin from "./components/layout/job";
+import CareersManager from "./components/layout/careerManager";
+
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -49,6 +54,9 @@ const AppLayout = ({ children }) => {
 function App() {
   return (
     <BrowserRouter>
+    {/* ✅ Toast container available globally */}
+      <ToastContainer position="top-center" autoClose={3000} />
+
       <AppLayout>
         <Routes>
           {/* 🔐 Auth Routes */}
@@ -147,6 +155,15 @@ function App() {
           />
 
           <Route
+            path="/careers"
+            element={
+              <ProtectedRoute>
+                <CareersManager />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/settings"
             element={
               <ProtectedRoute>
@@ -160,6 +177,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ProductAdmin />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/jobs"
+            element={
+              <ProtectedRoute>
+                <JobAdmin />
               </ProtectedRoute>
             }
           />

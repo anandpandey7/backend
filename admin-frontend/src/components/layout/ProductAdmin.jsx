@@ -127,7 +127,7 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
               className="btn btn-link btn-sm p-0 mb-2"
               onClick={() => setShowModal(true)}
             >
-              View Full Description →
+              View Long Description →
             </button>
           )}
 

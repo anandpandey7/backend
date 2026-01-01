@@ -20,7 +20,7 @@ router.get("/", getClientsWithPortfolio);             // with gallery
 router.post(
   "/:id",
 //   authMiddleware,
-  uploadClientProject.fields([{ name: "gallery", maxCount: 20 }]),
+  uploadClientProject.fields([{ name: "gallery", maxCount: 10 }]),
   addPortfolio
 );
 

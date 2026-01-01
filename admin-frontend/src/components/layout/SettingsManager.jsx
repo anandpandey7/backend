@@ -43,6 +43,10 @@ const SettingsManager = () => {
   });
 
   const [logo, setLogo] = useState(null);
+  const [video1, setVideo1] = useState(null);
+  const [video2, setVideo2] = useState(null);
+
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [edit, setEdit] = useState(false);
@@ -105,9 +109,11 @@ const SettingsManager = () => {
       description: "",
       social: defaultSocial,
       colours: defaultColours,
-      productCategory: [], // 🔹 Reset array
+      productCategory: [],
     });
     setLogo(null);
+    setVideo1(null);
+    setVideo2(null);
     setCategoryInput("");
   };
 
@@ -163,8 +169,11 @@ const SettingsManager = () => {
       fd.append("description", form.description);
       fd.append("social", JSON.stringify(form.social));
       fd.append("colours", JSON.stringify(form.colours));
-      fd.append("productCategory", JSON.stringify(form.productCategory)); // 🔹 Send array as string
+      fd.append("productCategory", JSON.stringify(form.productCategory));
+
       if (logo) fd.append("companyLogo", logo);
+      if (video1) fd.append("video1", video1);
+      if (video2) fd.append("video2", video2);
 
       const method = setting ? "PUT" : "POST";
 
@@ -378,6 +387,27 @@ const SettingsManager = () => {
                 />
               </div>
 
+              <div className="mb-3">
+  <label className="form-label">Upload Video 1</label>
+  <input
+    type="file"
+    className="form-control"
+    accept="video/*"
+    onChange={(e) => setVideo1(e.target.files[0])}
+  />
+</div>
+
+<div className="mb-3">
+  <label className="form-label">Upload Video 2</label>
+  <input
+    type="file"
+    className="form-control"
+    accept="video/*"
+    onChange={(e) => setVideo2(e.target.files[0])}
+  />
+</div>
+
+
               <button className="btn btn-primary" disabled={saving}>
                 {saving ? "Saving..." : setting ? "Update" : "Create"}
               </button>
@@ -470,6 +500,37 @@ const SettingsManager = () => {
                       <small>{k}</small>
                     </div>
                   ))}
+                </div>
+
+                <hr />
+                <h6>Videos</h6>
+
+                <div className="row">
+                  {setting.video1 && (
+                    <div className="col-md-6 mb-3">
+                      <p className="fw-semibold">Video 1</p>
+                      <video
+                        src={`http://localhost:5000${setting.video1}`}
+                        controls
+                        className="w-100 rounded"
+                      />
+                    </div>
+                  )}
+
+                  {setting.video2 && (
+                    <div className="col-md-6 mb-3">
+                      <p className="fw-semibold">Video 2</p>
+                      <video
+                        src={`http://localhost:5000${setting.video2}`}
+                        controls
+                        className="w-100 rounded"
+                      />
+                    </div>
+                  )}
+
+                  {!setting.video1 && !setting.video2 && (
+                    <p className="text-muted small">No videos uploaded.</p>
+                  )}
                 </div>
               </div>
             </div>

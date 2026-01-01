@@ -30,6 +30,8 @@ import inquiryRoutes from "./routes/inquiry.routes.js";
 import settingRoutes from "./routes/setting.routes.js";
 import ckeditorRoutes from "./routes/ckeditor.routes.js";
 import productRoutes from "./routes/product.routes.js";
+import jobRoutes from "./routes/job.routes.js";
+import careerRoutes from "./routes/career.routes.js";
 
 
 
@@ -75,6 +77,9 @@ app.use("/api/inquiries", inquiryRoutes);
 app.use("/api/settings",settingRoutes);
 app.use("/api/ckeditor", ckeditorRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/jobs", jobRoutes);
+app.use("/api/careers", careerRoutes);
+
 /* =====================
    Health Check
 ===================== */
@@ -82,9 +87,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Dharti Automation Backend Running 🚀" });
 });
 
-/* =====================
-   Error Handling 
-===================== */
+// Global Error handler middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({

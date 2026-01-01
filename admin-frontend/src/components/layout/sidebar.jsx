@@ -21,7 +21,7 @@ const Sidebar = () => {
       <div className="sidebar-brand">
         <Link to="/dashboard" className="brand-link">
           <img
-            src="/assets/img/AdminLTELogo.png"
+            src="../../assets/img/AdminLTELogo.png"
             alt="Logo"
             className="brand-image opacity-75 shadow"
           />
@@ -91,6 +91,21 @@ const Sidebar = () => {
                 <p>Services</p>
               </Link>
             </li>
+
+            <li className="nav-item">
+              <Link to="/careers" className="nav-link">
+                <i className="nav-icon bi bi-file-text"></i>
+                <p>Job Applications</p>
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link to="/jobs" className="nav-link">
+                <i className="nav-icon bi bi-file-text"></i>
+                <p>Jobs</p>
+              </Link>
+            </li>
+
             <li className="nav-item">
               <Link to="/settings" className="nav-link">
                 <i className="nav-icon bi bi-file-text"></i>

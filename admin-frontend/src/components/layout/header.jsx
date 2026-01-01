@@ -1,3 +1,6 @@
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+
 const Header = () => {
   return (
     <nav className="app-header navbar navbar-expand bg-body">
@@ -5,22 +8,22 @@ const Header = () => {
         {/* Left navbar links */}
         <ul className="navbar-nav">
           <li className="nav-item">
-            <a
-              className="nav-link"
-              data-lte-toggle="sidebar"
-              href="#"
-              role="button"
-            >
-              <i className="bi bi-list"></i>
-            </a>
+            <Link to="/dashboard" className="nav-link"> {/* Added opening <Link> tag */}
+              <i className="bi bi-list"></i> {/* Using <span> here for better accessibility */}
+            </Link>
           </li>
-          <li className="nav-item d-none d-md-block">
-            <a href="#" className="nav-link">Home</a>
+          <li className="nav-item">
+            <Link to="/products" className="nav-link">
+              <span>Products</span> {/* Using <span> here for better accessibility */}
+            </Link>
           </li>
-          <li className="nav-item d-none d-md-block">
-            <a href="#" className="nav-link">Contact</a>
+          <li className="nav-item">
+            <Link to="/settings" className="nav-link">
+              <span>Settings</span> {/* Using <span> here for better accessibility */}
+            </Link>
           </li>
         </ul>
+
 
         {/* Right navbar links */}
         <ul className="navbar-nav ms-auto">
