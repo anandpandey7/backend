@@ -3,16 +3,21 @@
 // in improving and adding new fields in many routes by my own ------------------------ please read this
 
 import multer from "multer";
+import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const uploadDir = path.join(__dirname, "../uploads/oem");
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "../uploads/services"));
-  },
+  destination: (req, file, cb) => cb(null, uploadDir),
   filename: (req, file, cb) => {
     const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
     cb(null, unique + path.extname(file.originalname));
@@ -20,11 +25,13 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith("image/")) cb(null, true);
-  else cb(new Error("Only image files allowed"), false);
+  if (
+    file.mimetype !== "application/pdf" &&
+    !file.mimetype.startsWith("application/")
+  ) {
+    return cb(new Error("Only document files allowed"), false);
+  }
+  cb(null, true);
 };
 
-const uploadService = multer({ storage, fileFilter });
-
-export default uploadService;
-
+export default multer({ storage, fileFilter });

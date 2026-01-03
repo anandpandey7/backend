@@ -1,3 +1,7 @@
+// NOTE: This code is comment out and improved with the help of LLMs(like claud, ChatGPT) but I have full KNowledge of my code
+// I have use LLMs to learn how professional programmers write code, although all initial codes are written by me and I have spend alot of time 
+// in improving and adding new fields in many routes by my own ------------------------ please read this
+
 import express from "express";
 import {
   createSetting,
@@ -11,10 +15,10 @@ import uploadSetting from "../middleware/uploadSetting.js";
 
 const router = express.Router();
 
-// 🔹 Get settings
+//  Get settings
 router.get("/", getSetting);
 
-// 🔹 Create settings
+//  Create settings
 router.post(
   "/",
   // authMiddleware,
@@ -26,7 +30,7 @@ router.post(
   createSetting
 );
 
-// 🔹 Update settings
+//  Update settings
 router.put(
   "/",
   // authMiddleware,
@@ -38,7 +42,7 @@ router.put(
   updateSetting
 );
 
-// 🔹 Delete settings
+//  Delete settings
 router.delete(
   "/",
   // authMiddleware,

@@ -1,3 +1,7 @@
+// NOTE: This code is comment out and improved with the help of LLMs(like claud, ChatGPT) but I have full KNowledge of my code
+// I have use LLMs to learn how professional programmers write code, although all initial codes are written by me and I have spend alot of time 
+// in improving and adding new fields in many routes by my own ------------------------ please read this
+
 import Career from "../models/careerApplication.js";
 import { careerSchema, careerUpdateSchema } from "../validators/career.schema.js";
 import fs from "fs";

@@ -14,6 +14,7 @@ import SettingsManager from "./components/layout/SettingsManager";
 import ProductAdmin from "./components/layout/ProductAdmin";
 import JobAdmin from "./components/layout/job";
 import CareersManager from "./components/layout/careerManager";
+import CertificationManager from "./components/layout/CertificateManager";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -185,6 +186,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <JobAdmin />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/certifications"
+            element={
+              <ProtectedRoute>
+                <CertificationManager />
               </ProtectedRoute>
             }
           />

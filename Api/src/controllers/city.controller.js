@@ -1,3 +1,7 @@
+// NOTE: This code is comment out and improved with the help of LLMs(like claud, ChatGPT) but I have full KNowledge of my code
+// I have use LLMs to learn how professional programmers write code, although all initial codes are written by me and I have spend alot of time 
+// in improving and adding new fields in many routes by my own ------------------------ please read this
+
 import City from "../models/city.js";
 import Country from "../models/country.js";
 import State from "../models/state.js";

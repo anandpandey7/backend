@@ -1,3 +1,7 @@
+// NOTE: This code is comment out and improved with the help of LLMs(like claud, ChatGPT) but I have full KNowledge of my code
+// I have use LLMs to learn how professional programmers write code, although all initial codes are written by me and I have spend alot of time 
+// in improving and adding new fields in many routes by my own ------------------------ please read this
+
 import express from "express";
 import cors from "cors";
 // import dotenv from "dotenv";
@@ -32,6 +36,9 @@ import ckeditorRoutes from "./routes/ckeditor.routes.js";
 import productRoutes from "./routes/product.routes.js";
 import jobRoutes from "./routes/job.routes.js";
 import careerRoutes from "./routes/career.routes.js";
+import certificationRoutes from "./routes/certification.routes.js";
+import oemRoutes from "./routes/oemForm.routes.js"
+import domainRoutes from "./routes/domain.routes.js"
 
 
 
@@ -79,6 +86,9 @@ app.use("/api/ckeditor", ckeditorRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/careers", careerRoutes);
+app.use("/api/certifications",certificationRoutes);
+app.use("/api/oem",oemRoutes);
+app.use("/api/domains",domainRoutes);
 
 /* =====================
    Health Check
