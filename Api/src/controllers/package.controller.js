@@ -7,7 +7,9 @@ import { validatePackageFeatures } from "../utils/validatePackageFeatures.js";
 ========================= */
 export const createPackage = async (req, res) => {
   try {
+    // console.log(req.body);
     const parsed = packageSchema.safeParse(req.body);
+    // console.log("parsed error");
     if (!parsed.success) {
       return res.status(400).json({
         success: false,

@@ -12,9 +12,18 @@ const inquirySchema = new mongoose.Schema(
     city: { type: String, required: true },
     contactNo1: { type: String, required: true },
     contactNo2: { type: String, required: true },
-    resolve: { type: Boolean, default: false }
+    resolve: { type: Boolean, default: false },
+    comment: {type: String, default: null }
   },
   { timestamps: true }
 );
 
 export default mongoose.model("Inquiry", inquirySchema);
+
+// email: {
+//   type: String,
+//   trim: true,
+//   lowercase: true,
+//   match: [/^\S+@\S+\.\S+$/, "Invalid email"],
+// }
+

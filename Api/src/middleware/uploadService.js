@@ -26,5 +26,11 @@ const fileFilter = (req, file, cb) => {
 
 const uploadService = multer({ storage, fileFilter });
 
+export const serviceUploadFields = uploadService.fields([
+  { name: "thumbnail", maxCount: 1 },
+  { name: "gallery", maxCount: 10 }
+]);
+
 export default uploadService;
+
 

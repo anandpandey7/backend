@@ -1,5 +1,5 @@
 import Inquiry from "../models/inquiry.js";
-import { inquirySchema } from "../validators/inquiry.schema.js";
+import { inquirySchema, inquiryRespondSchema } from "../validators/inquiry.schema.js";
 
 /* ➕ Create Inquiry */
 export const addInquiry = async (req, res) => {
