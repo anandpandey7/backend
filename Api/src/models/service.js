@@ -18,7 +18,8 @@ const serviceSchema = new mongoose.Schema(
     thumbnail: {
       type: String,
       required: true
-    }
+    },
+    gallery: [{ type: String }]
   },
   { timestamps: true }
 );

@@ -1,25 +1,22 @@
 import mongoose from "mongoose";
 
 const oemFormSchema = new mongoose.Schema({
-    firstName: {type: String, required: true},
-    lastName: {type: String, required: true},
+    name: {type: String, required: true},
     contactNo1: {type: String, required: true},
     contactNo2: {type: String, required: true},
     email: {type: String, required: true},
-    projectDescription: {type: String, required: true},
+    message: {type: String, required: true},
     address: {type: String, required: true},
     organization: {type: String }, // optional field so no required: true
-    domain: {
+    service: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Domain",
+      ref: "Service",
       required: true
     },
-    projectReport: {type: String }, // for address of file, which is hosted on backend
-
     responded: {
       type: Boolean,
       default: false
     }
 }, {timestamps: true});
 
-export default mongoose.model("OEMForm",oemFormSchema);
+export default mongoose.model("ServiceForm",oemFormSchema);

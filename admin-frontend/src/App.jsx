@@ -15,6 +15,7 @@ import ProductAdmin from "./components/layout/ProductAdmin";
 import JobAdmin from "./components/layout/job";
 import CareersManager from "./components/layout/careerManager";
 import CertificationManager from "./components/layout/CertificateManager";
+import OEM from "./components/layout/OemManager";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -195,6 +196,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <CertificationManager />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/oem"
+            element={
+              <ProtectedRoute>
+                <OEM />
               </ProtectedRoute>
             }
           />

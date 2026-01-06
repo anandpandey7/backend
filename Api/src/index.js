@@ -1,4 +1,4 @@
-// NOTE: This code is comment out and improved with the help of LLMs(like claud, ChatGPT) but I have full KNowledge of my code
+// NOTE: This code is comment out and improved with the help of LLMs/Multimodel Model(like claud, ChatGPT) but I have full KNowledge of my code
 // I have use LLMs to learn how professional programmers write code, although all initial codes are written by me and I have spend alot of time 
 // in improving and adding new fields in many routes by my own ------------------------ please read this
 
@@ -37,8 +37,11 @@ import productRoutes from "./routes/product.routes.js";
 import jobRoutes from "./routes/job.routes.js";
 import careerRoutes from "./routes/career.routes.js";
 import certificationRoutes from "./routes/certification.routes.js";
-import oemRoutes from "./routes/oemForm.routes.js"
-import domainRoutes from "./routes/domain.routes.js"
+import oemRoutes from "./routes/oemForm.routes.js";
+import domainRoutes from "./routes/domain.routes.js";
+import serviceInquiryRoutes from "./routes/serviceInquiry.routes.js";
+import featureRoutes from "./routes/feature.routes.js";
+import packageRoutes from "./routes/package.routes.js"
 
 
 
@@ -89,6 +92,9 @@ app.use("/api/careers", careerRoutes);
 app.use("/api/certifications",certificationRoutes);
 app.use("/api/oem",oemRoutes);
 app.use("/api/domains",domainRoutes);
+app.use("/api/serviceinquiries",serviceInquiryRoutes);
+app.use("/api/features",featureRoutes);
+app.use("/api/packages",packageRoutes);
 
 /* =====================
    Health Check

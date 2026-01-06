@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "../helper/config";
 
-const API = "http://localhost:5000/api/portfolio";
+const API = API_BASE_URL + "/api/portfolio";
 
 const PortfolioForm = ({ editClient, onSaved, onCancel }) => {
   const [gallery, setGallery] = useState([]);

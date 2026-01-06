@@ -107,6 +107,14 @@ const Sidebar = () => {
             </li>
 
             <li className="nav-item">
+              <Link to="/oem" className="nav-link">
+                <i className="nav-icon bi bi-file-text"></i>
+                <p>OEM APPlications</p>
+              </Link>
+            </li>
+
+
+            <li className="nav-item">
               <Link to="/certifications" className="nav-link">
                 <i className="nav-icon bi bi-file-text"></i>
                 <p>certifications</p>
