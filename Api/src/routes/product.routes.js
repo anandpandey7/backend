@@ -1,21 +1,33 @@
 import express from "express";
-import { createProduct,getProducts,getProductById,updateProduct,deleteProduct} from "../controllers/product.controller.js";
+import {
+  createProduct,
+  getProducts,
+  getProductById,
+  updateProduct,
+  deleteProduct
+} from "../controllers/product.controller.js";
 
-import uploadProduct from "../middleware/uploadProduct.js";
-import { authMiddleware } from "../middleware/auth.js";
+import { productUpload } from "../middleware/uploadProduct.js";
+// import { authMiddleware } from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.post("/", 
-    // authMiddleware, 
-    uploadProduct.single("image"), createProduct);
+router.post(
+  "/",
+  // authMiddleware,
+  productUpload,
+  createProduct
+);
+
+router.put(
+  "/:id",
+  // authMiddleware,
+  productUpload,
+  updateProduct
+);
+
 router.get("/", getProducts);
 router.get("/:id", getProductById);
-router.put("/:id",
-    //  authMiddleware,
-      uploadProduct.single("image"), updateProduct);
-router.delete("/:id",
-    //  authMiddleware,
-      deleteProduct);
+router.delete("/:id", deleteProduct);
 
 export default router;

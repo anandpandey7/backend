@@ -48,32 +48,80 @@ export const getInquiryById = async (req, res) => {
 };
 
 /* ✏️ Update Inquiry → only resolve field */
+// export const updateInquiryResolve = async (req, res) => {
+//   try {
+//     const { resolve } = req.body;
+
+//     if (typeof resolve !== "boolean") {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Resolve must be boolean"
+//       });
+//     }
+
+//     const inquiry = await Inquiry.findById(req.params.id);
+//     if (!inquiry) {
+//       return res.status(404).json({ success: false, message: "Inquiry not found" });
+//     }
+
+//     inquiry.resolve = resolve;
+//     await inquiry.save();
+
+//     res.json({
+//       success: true,
+//       message: "Inquiry resolve status updated",
+//       inquiry
+//     });
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// };
+
 export const updateInquiryResolve = async (req, res) => {
   try {
-    const { resolve } = req.body;
+    const parsed = inquiryRespondSchema.safeParse(req.body);
 
-    if (typeof resolve !== "boolean") {
+    if (!parsed.success) {
       return res.status(400).json({
         success: false,
-        message: "Resolve must be boolean"
+        errors: parsed.error.errors
       });
     }
 
+    const { resolve, comment } = parsed.data;
+
     const inquiry = await Inquiry.findById(req.params.id);
     if (!inquiry) {
-      return res.status(404).json({ success: false, message: "Inquiry not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Inquiry not found"
+      });
     }
 
     inquiry.resolve = resolve;
+
+    // update comment only if provided
+    if (comment !== undefined) {
+      inquiry.comment = comment;
+    }
+
+    // clear comment when unresolved
+    if (!resolve) {
+      inquiry.comment = null;
+    }
+
     await inquiry.save();
 
-    res.json({
+    return res.json({
       success: true,
-      message: "Inquiry resolve status updated",
+      message: "Inquiry updated successfully",
       inquiry
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 

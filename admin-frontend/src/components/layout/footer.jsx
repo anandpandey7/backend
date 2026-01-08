@@ -8,7 +8,7 @@ const Footer = () => {
 
       {/* Copyright */}
       <strong>
-        Copyright &copy; 2014–2025&nbsp;
+        Copyright &copy; 2014–2026&nbsp;
         <a
           href="https://adminlte.io"
           className="text-decoration-none"

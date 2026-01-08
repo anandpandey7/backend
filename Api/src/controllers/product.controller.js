@@ -7,32 +7,67 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Helper for deleting images
+
+export const deleteFile = (relativePath) => {
+  try {
+    if (!relativePath) return;
+
+    const fullPath = path.join(__dirname, "..", relativePath);
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
+    }
+  } catch (err) {
+    console.error("File delete failed:", err.message);
+  }
+};
+
+export const cleanupUploadedFiles = (files) => {
+  if (!files) return;
+
+  if (files.image?.[0]) {
+    deleteFile(`/uploads/products/${files.image[0].filename}`);
+  }
+
+  if (files.gallery?.length) {
+    files.gallery.forEach(file => {
+      deleteFile(`/uploads/products/${file.filename}`);
+    });
+  }
+};
+
 /* =========================
    ➕ Create Product
 ========================= */
 export const createProduct = async (req, res) => {
   try {
     const parsed = productSchema.safeParse(req.body);
+
     if (!parsed.success) {
-      if (req.file) {
-        fs.unlinkSync(path.join(__dirname, "../uploads/products", req.file.filename));
-      }
+      cleanupUploadedFiles(req.files);
       return res.status(400).json({
         success: false,
         errors: parsed.error.errors
       });
     }
 
-    if (!req.file) {
+    if (!req.files?.image?.[0]) {
+      cleanupUploadedFiles(req.files);
       return res.status(400).json({
         success: false,
         message: "Product image is required"
       });
     }
 
+    const gallery =
+      req.files.gallery?.map(
+        f => `/uploads/products/${f.filename}`
+      ) || [];
+
     const product = await Product.create({
       ...parsed.data,
-      image: `/uploads/products/${req.file.filename}`
+      image: `/uploads/products/${req.files.image[0].filename}`,
+      gallery
     });
 
     res.status(201).json({
@@ -40,7 +75,9 @@ export const createProduct = async (req, res) => {
       message: "Product created successfully",
       product
     });
+
   } catch (error) {
+    cleanupUploadedFiles(req.files);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -81,10 +118,9 @@ export const getProductById = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const parsed = productUpdateSchema.safeParse(req.body);
+
     if (!parsed.success) {
-      if (req.file) {
-        fs.unlinkSync(path.join(__dirname, "../uploads/products", req.file.filename));
-      }
+      cleanupUploadedFiles(req.files);
       return res.status(400).json({
         success: false,
         errors: parsed.error.errors
@@ -95,11 +131,20 @@ export const updateProduct = async (req, res) => {
     if (!product)
       return res.status(404).json({ success: false, message: "Product not found" });
 
-    // 🖼️ Replace image if uploaded
-    if (req.file) {
-      const oldPath = path.join(__dirname, "..", product.image);
-      if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-      product.image = `/uploads/products/${req.file.filename}`;
+    // 🖼️ Replace main image
+    if (req.files?.image?.[0]) {
+      deleteFile(product.image);
+      product.image = `/uploads/products/${req.files.image[0].filename}`;
+    }
+
+
+    if (req.files?.gallery?.length) {
+      if (product.gallery?.length) {
+        product.gallery.forEach(img => deleteFile(img));
+      }
+      product.gallery = req.files.gallery.map(
+        file => `/uploads/products/${file.filename}`
+      );
     }
 
     Object.assign(product, parsed.data);
@@ -110,10 +155,13 @@ export const updateProduct = async (req, res) => {
       message: "Product updated successfully",
       product
     });
+
   } catch (error) {
+    cleanupUploadedFiles(req.files);
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 
 /* =========================

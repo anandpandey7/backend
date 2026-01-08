@@ -13,7 +13,15 @@ export const inquirySchema = z.object({
   contactNo2: z.string().trim().min(8, "Contact no2 is required")
 });
 
+
 export const inquiryRespondSchema = z.object({
-  resolve: z.boolean(),
-  comment: z.string().min(1, "Comment is required")
-})
+    resolve: z.boolean(),
+    comment: z.string().trim().optional()
+  })
+  .refine(
+    data => !data.resolve || (data.comment && data.comment.length > 0),
+    {
+      message: "Comment is required when resolve is true",
+      path: ["comment"]
+    }
+  );

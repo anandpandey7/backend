@@ -168,6 +168,48 @@ const ClientForm = ({ editClient, onSaved, onCancel }) => {
 
   const handleSubmit = async (e) => {
   e.preventDefault();
+  // ================= BASIC VALIDATION =================
+
+  if (!form.clientName.trim()) {
+    toast.error("Client name is required");
+    return;
+  }
+
+  if (!form.email.trim()) {
+    toast.error("Email is required");
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(form.email)) {
+    toast.error("Please enter a valid email");
+    return;
+  }
+
+  if (!form.phone.trim()) {
+    toast.error("Phone number is required");
+    return;
+  }
+  if (form.phone.length < 8) {
+    toast.error("Phone number is required");
+    return;
+  }
+
+  if (!form.projectName.trim()) {
+    toast.error("Project name is required");
+    return;
+  }
+
+  if (!form.projectDescription.trim()) {
+    toast.error("Project description is required");
+    return;
+  }
+
+  // ✅ Logo required only when creating
+  if (!editClient && !logo) {
+    toast.error("Client logo is required");
+    return;
+  }
 
   try {
     setLoading(true);
@@ -188,8 +230,8 @@ const ClientForm = ({ editClient, onSaved, onCancel }) => {
 
     const method = editClient ? "PUT" : "POST";
     const url = editClient
-      ? `http://localhost:5000/api/clients/${editClient._id}`
-      : "http://localhost:5000/api/clients";
+      ? `${API_BASE_URL}/api/clients/${editClient._id}`
+      : `${API_BASE_URL}/api/clients`;
 
     const res = await fetch(url, {
       method,

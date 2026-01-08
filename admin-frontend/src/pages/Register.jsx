@@ -179,6 +179,19 @@ const Register = () => {
                 </div>
               </div>
               {errors.password && <div className="text-danger small mb-3">{errors.password}</div>}
+              <div className="row">
+                <div className="col-4">
+                  <div className="d-grid gap-2">
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      disabled={loading}
+                    >
+                      {loading ? "Registering..." : "Register"}
+                    </button>
+                  </div>
+                </div>
+              </div>
 
               {/* Row */}
               {/* <div className="row">

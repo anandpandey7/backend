@@ -94,7 +94,7 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
     <>
       <div className="product-card card shadow-sm">
         <img
-          src={`http://localhost:5000${product.image}`}
+          src={`${API_BASE_URL}${product.image}`}
           className="card-img-top"
           alt={product.productName}
           style={{
@@ -120,7 +120,14 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
             {truncateText(product.description)}
           </p>
 
-          <p className="text-success fw-bold mb-2">₹{product.price}</p>
+          <p className="mb-1">
+            <span className="text-muted text-decoration-line-through me-2">
+              ₹{product.price}
+            </span>
+            <span className="text-success fw-bold">
+              ₹{product.sellingPrice}
+            </span>
+          </p>
 
           {product.longDescription && (
             <button
@@ -175,7 +182,7 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
               <div className="modal-body">
                 <div className="text-center mb-3">
                   <img
-                    src={`http://localhost:5000${product.image}`}
+                    src={`${API_BASE_URL}${product.image}`}
                     alt={product.productName}
                     className="img-fluid rounded shadow-sm"
                     style={{
@@ -186,6 +193,26 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
                     }}
                   />
                 </div>
+                <p className="text-center">Gallery Image </p>
+                {product.gallery?.length > 0 && (
+                  <div className="d-flex gap-1 justify-content-center mt-2 flex-wrap">
+                    {product.gallery.map((img, idx) => (
+                      <img
+                        key={idx}
+                        src={`${API_BASE_URL}${img}`}
+                        alt="gallery"
+                        style={{
+                          width: "150px",
+                          height: "90px",
+                          objectFit: "contain",
+                          borderRadius: "4px",
+                          cursor: "pointer"
+                        }}
+                        onClick={() => setShowModal(true)}
+                      />
+                    ))}
+                  </div>
+                )}
 
                 <h6 className="fw-semibold mb-1">Description</h6>
                 <p
@@ -255,10 +282,13 @@ const CreateProduct = ({ editProduct, onProductSaved, onCancelEdit, categories }
   const [productName, setProductName] = useState("");
   const [description, setDescription] = useState("");
   const [longDescription, setLongDescription] = useState("");
-  const [productCategory, setProductCategory] = useState(""); // 🔹 State for category
+  const [productCategory, setProductCategory] = useState(null); // 🔹 State for category
   const [price, setPrice] = useState("");
+  const [sellingPrice, setSellingPrice] = useState("");
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [gallery, setGallery] = useState([]);
+
 
   const token = localStorage.getItem("adminToken");
 
@@ -267,27 +297,53 @@ const CreateProduct = ({ editProduct, onProductSaved, onCancelEdit, categories }
       setProductName(editProduct.productName);
       setDescription(editProduct.description);
       setLongDescription(editProduct.longDescription || "");
-      setProductCategory(editProduct.productCategory || ""); // 🔹 Set existing category
+      setProductCategory(editProduct.productCategory || null); // 🔹 Set existing category
       setPrice(editProduct.price);
+      setSellingPrice(editProduct.sellingPrice);
       setImage(null);
     } else {
       setProductName("");
       setDescription("");
       setLongDescription("");
-      setProductCategory("");
+      setProductCategory(null);
       setPrice("");
+      setSellingPrice("");
       setImage(null);
+      setGallery([])
     }
   }, [editProduct]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+
+    e.preventDefault(); // ✅ Prevent page reload on Enter
+    
     if (!editProduct && !image) {
       toast.error("Please upload an image");
       return;
     }
 
-    if (!productName || !description || !price) {
-      toast.error("Please fill all required fields");
+    if (!productName ) {
+      toast.error("productName is required");
+      return;
+    }
+
+    if (!description || !price) {
+      toast.error("Description is required");
+      return;
+    }
+
+    if (!price) {
+      toast.error("Price is required");
+      return;
+    }
+
+    if(!sellingPrice){
+      toast.error("Selling Price is required");
+      return;
+    }
+
+    if(!productCategory){
+      toast.error("Product Category is required");
       return;
     }
 
@@ -297,6 +353,11 @@ const CreateProduct = ({ editProduct, onProductSaved, onCancelEdit, categories }
     formData.append("longDescription", longDescription);
     formData.append("productCategory", productCategory); // 🔹 Add category to formData
     formData.append("price", price);
+    formData.append("sellingPrice", sellingPrice);
+
+    gallery.forEach((file, index) => {
+      formData.append("gallery", file);
+    });
 
     if (image) {
       formData.append("image", image);
@@ -327,9 +388,11 @@ const CreateProduct = ({ editProduct, onProductSaved, onCancelEdit, categories }
       setProductName("");
       setDescription("");
       setLongDescription("");
-      setProductCategory("");
+      setProductCategory(null);
       setPrice("");
+      setSellingPrice("");
       setImage(null);
+      setGallery([]);
 
       onProductSaved(data.product);
 
@@ -345,116 +408,150 @@ const CreateProduct = ({ editProduct, onProductSaved, onCancelEdit, categories }
     setProductName("");
     setDescription("");
     setLongDescription("");
-    setProductCategory("");
+    setProductCategory(null);
     setPrice("");
+    setSellingPrice("");
     setImage(null);
+    setGallery([]);
     onCancelEdit();
     toast.info("Edit cancelled");
   };
 
   return (
-    <div className="card">
-      <div className="card-header d-flex justify-content-between align-items-center">
-        <h3 className="card-title mb-0">
-          {editProduct ? "Edit Product" : "Add Product"}
-        </h3>
-        {editProduct && (
-          <button className="btn btn-sm btn-secondary" onClick={handleCancel}>
-            Cancel
-          </button>
-        )}
-      </div>
-
-      <div className="card-body">
-        <div className="mb-3">
-          <label className="form-label">Product Name</label>
-          <input
-            type="text"
-            className="form-control"
-            value={productName}
-            onChange={(e) => setProductName(e.target.value)}
-            required
-          />
-        </div>
-
-        {/* 🔹 Category Dropdown */}
-        <div className="mb-3">
-          <label className="form-label">Category</label>
-          <select 
-            className="form-select" 
-            value={productCategory} 
-            onChange={(e) => setProductCategory(e.target.value)}
-          >
-            <option value="">Select Category</option>
-            {categories.map((cat, idx) => (
-              <option key={idx} value={cat}>{cat}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Short Description</label>
-          <textarea
-            className="form-control"
-            rows="2"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Price (₹)</label>
-          <input
-            type="number"
-            className="form-control"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Long Description</label>
-          <CKEditor
-            editor={ClassicEditor}
-            data={longDescription}
-            config={{
-              licenseKey: "GPL",
-              extraPlugins: [MyCustomUploadAdapterPlugin],
-            }}
-            onChange={(event, editor) => {
-              const data = editor.getData();
-              setLongDescription(data);
-            }}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">
-            {editProduct ? "Replace Image (optional)" : "Product Image"}
-          </label>
-          <input
-            type="file"
-            className="form-control"
-            accept="image/*"
-            onChange={(e) => setImage(e.target.files[0])}
-            required={!editProduct}
-          />
-        </div>
-      </div>
-
-      <div className="card-footer">
+  <form className="card" onSubmit={handleSubmit}>
+    <div className="card-header d-flex justify-content-between align-items-center">
+      <h3 className="card-title mb-0">
+        {editProduct ? "Edit Product" : "Add Product"}
+      </h3>
+      {editProduct && (
         <button
-          className="btn btn-primary w-100"
-          disabled={loading}
-          onClick={handleSubmit}
+          type="button"
+          className="btn btn-sm btn-secondary"
+          onClick={handleCancel}
         >
-          {loading ? "Saving..." : editProduct ? "Update Product" : "Add Product"}
+          Cancel
         </button>
+      )}
+    </div>
+
+    <div className="card-body">
+      <div className="mb-3">
+        <label className="form-label">Product Name</label>
+        <input
+          type="text"
+          className="form-control"
+          value={productName}
+          onChange={(e) => setProductName(e.target.value)}
+          required
+        />
+      </div>
+
+      {/* 🔹 Category Dropdown */}
+      <div className="mb-3">
+        <label className="form-label">Category</label>
+        <select 
+          className="form-select" 
+          value={productCategory} 
+          onChange={(e) => setProductCategory(e.target.value)}
+        >
+          <option value="">Select Category</option>
+          {categories.map((cat, idx) => (
+            <option key={idx} value={cat}>{cat}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="mb-3">
+        <label className="form-label">Short Description</label>
+        <textarea
+          className="form-control"
+          rows="2"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          required
+        />
+      </div>
+
+      <div className="mb-3">
+        <label className="form-label">Price (₹)</label>
+        <input
+          type="number"
+          className="form-control"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          required
+        />
+      </div>
+
+      <div className="mb-3">
+        <label className="form-label">Selling Price (₹)</label>
+        <input
+          type="number"
+          className="form-control"
+          value={sellingPrice}
+          onChange={(e) => setSellingPrice(e.target.value)}
+          required
+        />
+      </div>
+
+      <div className="mb-3">
+        <label className="form-label">Long Description</label>
+        <CKEditor
+          editor={ClassicEditor}
+          data={longDescription}
+          config={{
+            licenseKey: "GPL",
+            extraPlugins: [MyCustomUploadAdapterPlugin],
+          }}
+          onChange={(event, editor) => {
+            const data = editor.getData();
+            setLongDescription(data);
+          }}
+        />
+      </div>
+
+      <div className="mb-3">
+        <label className="form-label">
+          {editProduct ? "Replace Image (optional)" : "Product Image"}
+        </label>
+        <input
+          type="file"
+          className="form-control"
+          accept="image/*"
+          onChange={(e) => setImage(e.target.files[0])}
+          required={!editProduct}
+        />
+      </div>
+
+      <div className="mb-3">
+        <label className="form-label">
+          Product Gallery (multiple images)
+        </label>
+        <input
+          type="file"
+          className="form-control"
+          accept="image/*"
+          multiple
+          onChange={(e) => setGallery([...e.target.files])}
+        />
+        <small className="text-muted">
+          You can upload multiple images
+        </small>
       </div>
     </div>
-  );
+
+    <div className="card-footer">
+      <button
+        type="submit"
+        className="btn btn-primary w-100"
+        disabled={loading}
+      >
+        {loading ? "Saving..." : editProduct ? "Update Product" : "Add Product"}
+      </button>
+    </div>
+  </form>
+);
+
 };
 
 /* ================= ProductAdmin ================= */

@@ -79,6 +79,13 @@ const Sidebar = () => {
             </li>
 
             <li className="nav-item">
+              <Link to="/productInquires" className="nav-link">
+                <i className="nav-icon bi bi-file-text"></i>
+                <p>Product Inquiry</p>
+              </Link>
+            </li>
+
+            <li className="nav-item">
               <Link to="/inquires" className="nav-link">
                 <i className="nav-icon bi bi-file-text"></i>
                 <p>Inquiry</p>
@@ -89,6 +96,27 @@ const Sidebar = () => {
               <Link to="/services" className="nav-link">
                 <i className="nav-icon bi bi-file-text"></i>
                 <p>Services</p>
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link to="/serviceInquires" className="nav-link">
+                <i className="nav-icon bi bi-file-text"></i>
+                <p>Service Inquires</p>
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link to="/packages" className="nav-link">
+                <i className="nav-icon bi bi-file-text"></i>
+                <p>Packages</p>
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link to="/features" className="nav-link">
+                <i className="nav-icon bi bi-file-text"></i>
+                <p>Features</p>
               </Link>
             </li>
 

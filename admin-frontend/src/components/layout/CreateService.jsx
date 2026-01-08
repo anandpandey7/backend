@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { API_BASE_URL } from "../helper/config";
+import { toast } from "react-toastify";
 
 class MyUploadAdapter {
   constructor(loader) {
@@ -52,6 +53,7 @@ const CreateService = ({ editService, onSaved, onCancel }) => {
   const [description, setDescription] = useState("");
   const [longDescription, setLongDescription] = useState("");
   const [thumbnail, setThumbnail] = useState(null);
+  const [gallery, setGallery] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -60,6 +62,7 @@ const CreateService = ({ editService, onSaved, onCancel }) => {
       setDescription(editService.description.replace(/"/g, ""));
       setLongDescription(editService.longDescription.replace(/"/g, ""));
       setThumbnail(null);
+      setGallery([]);
     } else {
       reset();
     }
@@ -70,35 +73,65 @@ const CreateService = ({ editService, onSaved, onCancel }) => {
     setDescription("");
     setLongDescription("");
     setThumbnail(null);
+    setGallery([]);
     // Reset file input
     const fileInput = document.querySelector('input[type="file"]');
     if (fileInput) fileInput.value = "";
   };
 
-  const handleSubmit = async () => {
-  // Validation
-  if (!title.trim()) {
-    alert("Title is required");
-    return;
-  }
-  if (!description.trim()) {
-    alert("Description is required");
-    return;
-  }
-  if (!longDescription.trim()) {
-    alert("Long description is required");
-    return;
-  }
-  if (!editService && !thumbnail) {
-    alert("Thumbnail required for new service");
-    return;
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  // // Validation
+  // if (!title.trim()) {
+  //   alert("Title is required");
+  //   return;
+  // }
+  // if (!description.trim()) {
+  //   alert("Description is required");
+  //   return;
+  // }
+  // if (!longDescription.trim()) {
+  //   alert("Long description is required");
+  //   return;
+  // }
+  // if (!editService && !thumbnail) {
+  //   alert("Thumbnail required for new service");
+  //   return;
+  // }
+
+  // 🔍 Frontend validation
+    if (!title.trim()) {
+      toast.error("Title is required");
+      return;
+    }
+    if (!description.trim()) {
+      toast.error("Short description is required");
+      return;
+    }
+    if (!longDescription.trim()) {
+      toast.error("Long description is required");
+      return;
+    }
+    if (!editService && !thumbnail) {
+      toast.error("Thumbnail is required for new service");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Please login again");
+        return;
+      }
 
   const fd = new FormData();
   fd.append("title", title.trim());
   fd.append("description", description.trim());
   fd.append("longDescription", longDescription);
   if (thumbnail) fd.append("thumbnail", thumbnail);
+
+  gallery.forEach((file, index) => {
+      fd.append("gallery", file);
+  });
 
   try {
     setLoading(true);
@@ -144,7 +177,8 @@ const CreateService = ({ editService, onSaved, onCancel }) => {
 };
 
   return (
-    <div className="card">
+    
+    <form className="card" onSubmit={handleSubmit}>
       <div className="card-header d-flex justify-content-between align-items-center">
         <h3 className="card-title mb-0">
           {editService ? "Edit Service" : "Create Service"}
@@ -211,13 +245,28 @@ const CreateService = ({ editService, onSaved, onCancel }) => {
             </small>
           )}
         </div>
+
+          <div className="mb-3">
+          <label className="form-label">
+            Product Gallery (multiple images)
+          </label>
+          <input
+            type="file"
+            className="form-control"
+            accept="image/*"
+            multiple
+            onChange={(e) => setGallery([...e.target.files])}
+          />
+          <small className="text-muted">
+            You can upload multiple images
+          </small>
+        </div>
       </div>
 
       <div className="card-footer">
         <button
           className="btn btn-primary w-100"
           disabled={loading}
-          onClick={handleSubmit}
         >
           {loading
             ? "Saving..."
@@ -226,7 +275,7 @@ const CreateService = ({ editService, onSaved, onCancel }) => {
             : "Create Service"}
         </button>
       </div>
-    </div>
+    </form>
   );
 };
 

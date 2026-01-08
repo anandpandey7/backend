@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const InquiryCard = ({
+const ProductInquiryCard = ({
   inquiry,
   onToggle,
   onDelete,
@@ -17,13 +17,15 @@ const InquiryCard = ({
   return (
     <div className="card mb-3 shadow-sm">
       <div className="card-body">
-        <h6 className="mb-1">
-          {inquiry.firstName} {inquiry.lastName}
+        <h6 className="mb-0.5">
+          {inquiry.name}
         </h6>
         <p className="mb-1"><b>Email:</b> {inquiry.email || "-"}</p>
-        <p className="mb-1"><b>Domain:</b> {inquiry.domain}</p>
         <p className="mb-1">
-          <b>Location:</b> {inquiry.city}, {inquiry.state}, {inquiry.country}
+        <b>Product:</b> {inquiry.product?.productName}
+        </p>
+        <p className="mb-1">
+          <b>Location:</b> {inquiry.address},
         </p>
         <p className="mb-1">
           <b>Contact:</b> {inquiry.contactNo1}
@@ -76,4 +78,4 @@ const InquiryCard = ({
   );
 };
 
-export default InquiryCard;
+export default ProductInquiryCard;

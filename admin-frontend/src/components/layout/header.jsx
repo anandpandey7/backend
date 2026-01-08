@@ -35,7 +35,7 @@ const Header = () => {
           </li>
 
           {/* Messages */}
-          <li className="nav-item dropdown">
+          {/* <li className="nav-item dropdown">
             <a className="nav-link" data-bs-toggle="dropdown" href="#">
               <i className="bi bi-chat-text"></i>
               <span className="navbar-badge badge text-bg-danger">3</span>
@@ -78,7 +78,7 @@ const Header = () => {
                 See All Messages
               </a>
             </div>
-          </li>
+          </li> */}
 
           {/* Notifications */}
           <li className="nav-item dropdown">
@@ -121,7 +121,7 @@ const Header = () => {
           </li>
 
           {/* Fullscreen */}
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <a className="nav-link" data-lte-toggle="fullscreen" href="#">
               <i data-lte-icon="maximize" className="bi bi-arrows-fullscreen"></i>
               <i
@@ -130,20 +130,20 @@ const Header = () => {
                 style={{ display: "none" }}
               ></i>
             </a>
-          </li>
+          </li> */}
 
           {/* User menu */}
           <li className="nav-item dropdown user-menu">
             <a href="#" className="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-              <img
+              {/* <img
                 src="/assets/img/user2-160x160.jpg"
                 className="user-image rounded-circle shadow"
                 alt="User"
-              />
+              /> */}
               <span className="d-none d-md-inline">Alexander Pierce</span>
             </a>
 
-            <ul className="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+            {/* <ul className="dropdown-menu dropdown-menu-lg dropdown-menu-end">
               <li className="user-header text-bg-primary">
                 <img
                   src="/assets/img/user2-160x160.jpg"
@@ -170,7 +170,7 @@ const Header = () => {
                   Sign out
                 </a>
               </li>
-            </ul>
+            </ul> */}
           </li>
         </ul>
       </div>

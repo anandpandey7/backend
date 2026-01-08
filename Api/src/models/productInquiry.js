@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const oemFormSchema = new mongoose.Schema({
+const productFormSchema = new mongoose.Schema({
     name: {type: String, required: true},
     contactNo1: {type: String, required: true},
     contactNo2: {type: String, required: true},
@@ -8,13 +8,13 @@ const oemFormSchema = new mongoose.Schema({
     message: {type: String, required: true},
     address: {type: String, required: true},
     organization: {type: String }, // optional field so no required: true
-    service: {
+    product: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Service",
+      ref: "Product",
       required: true
     },
     responded: {type: Boolean, default: false},
     comment: {type: String, default: null }
 }, {timestamps: true});
 
-export default mongoose.model("ServiceForm",oemFormSchema);
+export default mongoose.model("ProductForm",productFormSchema);

@@ -9,8 +9,8 @@ export const createPackage = async (req, res) => {
   try {
     // console.log(req.body);
     const parsed = packageSchema.safeParse(req.body);
-    // console.log("parsed error");
     if (!parsed.success) {
+      // console.log("parsed error");
       return res.status(400).json({
         success: false,
         errors: parsed.error.errors

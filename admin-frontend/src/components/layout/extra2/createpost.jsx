@@ -8,6 +8,10 @@ const CreatePost = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if(!description.length == 0){
+      alert("Please upload an description");
+      return;
+    }
 
     if (!image) {
       alert("Please upload an image");

@@ -1,21 +1,25 @@
 import { useEffect, useState } from "react";
-import InquiryCard from "./InquiryCard";
+import ServiceInquiryCard from "./ServiceInquiryCard";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { API_BASE_URL } from "../helper/config";
 
-const API = `${API_BASE_URL}/api/inquiries`;
+const API = `${API_BASE_URL}/api/serviceinquiries`;
+const SERVICES_API = `${API_BASE_URL}/api/services`;
 
-const InquiriesManager = () => {
+const ServiceInquiriesManager = () => {
   const [inquiries, setInquiries] = useState([]);
+  const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCommentModal, setShowCommentModal] = useState(false);
   const [selectedInquiry, setSelectedInquiry] = useState(null);
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [serviceFilter, setServiceFilter] = useState("");
 
   useEffect(() => {
     fetchInquiries();
+    fetchServices();
   }, []);
 
   const fetchInquiries = async () => {
@@ -23,12 +27,23 @@ const InquiriesManager = () => {
       setLoading(true);
       const res = await fetch(API);
       const data = await res.json();
-      setInquiries(data.inquiries || []);
+      setInquiries(data.forms || []);
     } catch (err) {
       console.error(err);
       toast.error("Failed to load inquiries");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchServices = async () => {
+    try {
+      const res = await fetch(SERVICES_API);
+      const data = await res.json();
+      setServices(data.services || []);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load Services");
     }
   };
 
@@ -45,15 +60,13 @@ const InquiriesManager = () => {
   };
 
   const toggleResolve = async (inq) => {
-    // If marking as resolved, show comment modal
-    if (!inq.resolve) {
-      openCommentModal(inq);
-      return;
+    if (!inq.responded) {
+        openCommentModal(inq);
+        return;
     }
 
-    // If marking as unresolved, proceed directly
     await updateInquiryStatus(inq, false, null);
-  };
+ };
 
   const handleCommentSubmit = async () => {
     if (!comment.trim()) {
@@ -65,9 +78,8 @@ const InquiriesManager = () => {
     closeCommentModal();
   };
 
-  const updateInquiryStatus = async (inq, resolve, comment) => {
-    // Show confirmation ONLY when reverting from resolved → unresolved
-    if (!resolve) {
+  const updateInquiryStatus = async (inq, responded, comment) => {
+    if (inq.responded && !responded) {
       const confirmUnresolve = window.confirm(
         "This inquiry is already resolved. Mark it as unresolved?"
       );
@@ -75,13 +87,13 @@ const InquiriesManager = () => {
     }
     try {
       setSubmitting(true);
-      const body = { resolve };
+      const body = { responded };
       if (comment !== null) {
         body.comment = comment;
       }
 
-      const res = await fetch(`${API}/${inq._id}`, {
-        method: "PUT",
+      const res = await fetch(`${API}/${inq._id}/responded`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
@@ -94,13 +106,13 @@ const InquiriesManager = () => {
       }
 
       toast.success(
-        resolve ? "Marked as resolved ✅" : "Marked as unresolved 🔄"
+        responded ? "Marked as responded ✅" : "Marked as unresponded 🔄"
       );
 
       setInquiries((prev) =>
         prev.map((i) =>
           i._id === inq._id
-            ? { ...i, resolve, comment: resolve ? comment : null }
+            ? { ...i, responded, comment: responded ? comment : null }
             : i
         )
       );
@@ -132,18 +144,44 @@ const InquiriesManager = () => {
     }
   };
 
-  const unresolved = inquiries.filter((i) => !i.resolve);
-  const resolved = inquiries.filter((i) => i.resolve);
+  // Filter inquiries based on selected product
+  const filteredInquiries = serviceFilter
+  ? inquiries.filter(
+      (i) => i.service && i.service._id === serviceFilter
+    )
+  : inquiries;
+
+
+  const unresolved = filteredInquiries.filter((i) => !i.responded);
+  const resolved = filteredInquiries.filter((i) => i.responded);
 
   return (
     <div className="container py-4">
-      <h3 className="mb-4">Inquiry Section</h3>
+        <ToastContainer position="top-center" autoClose={2500} />
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h3 className="mb-0">Services Inquiry Section</h3>
+        
+        {/* Serice Filter Dropdown */}
+        <div style={{ minWidth: '250px' }}>
+          <select
+            className="form-select"
+            value={serviceFilter}
+            onChange={(e) => setServiceFilter(e.target.value)}
+          >
+            <option value="">All Services</option>
+            {services.map((service) => (
+              <option key={service._id} value={service._id}>
+                {service.title}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       {loading ? (
         <p>Loading...</p>
       ) : (
         <div className="row g-4">
-          <ToastContainer position="top-center" autoClose={2500} />
           
           {/* Unresolved */}
           <div className="col-12 col-lg-6">
@@ -156,10 +194,14 @@ const InquiriesManager = () => {
               </div>
               <div className="card-body">
                 {unresolved.length === 0 ? (
-                  <p className="text-muted">No unresolved inquiries 🎉</p>
+                  <p className="text-muted">
+                    {serviceFilter
+                      ? "No unresolved inquiries for this service 🎉" 
+                      : "No unresolved inquiries 🎉"}
+                  </p>
                 ) : (
                   unresolved.map((inq) => (
-                    <InquiryCard
+                    <ServiceInquiryCard
                       key={inq._id}
                       inquiry={inq}
                       onToggle={() => toggleResolve(inq)}
@@ -184,10 +226,14 @@ const InquiriesManager = () => {
               </div>
               <div className="card-body">
                 {resolved.length === 0 ? (
-                  <p className="text-muted">No resolved inquiries</p>
+                  <p className="text-muted">
+                    {serviceFilter
+                      ? "No resolved inquiries for this service" 
+                      : "No resolved inquiries"}
+                  </p>
                 ) : (
                   resolved.map((inq) => (
-                    <InquiryCard
+                    <ServiceInquiryCard
                       key={inq._id}
                       inquiry={inq}
                       onToggle={() => toggleResolve(inq)}
@@ -267,4 +313,4 @@ const InquiriesManager = () => {
   );
 };
 
-export default InquiriesManager;
+export default ServiceInquiriesManager;

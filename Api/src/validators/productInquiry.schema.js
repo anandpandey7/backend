@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 
-export const servicesInquiryFormSchema = z.object({
+export const productInquiryFormSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
   email: z.string().trim().email("Invalid email"),
   contactNo1: z
@@ -14,7 +14,7 @@ export const servicesInquiryFormSchema = z.object({
     .regex(/^\d{8,15}$/, "Invalid contact number"),
   address: z.string().trim().min(1, "Address is required"),
   message: z.string().trim().min(1, "Message is required"),
-  service: z.string(),
+  product: z.string(),
   organization: z.string().trim().optional()
 });
 

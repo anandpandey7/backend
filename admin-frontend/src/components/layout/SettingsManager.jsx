@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { API_BASE_URL } from "../helper/config";
 
 const defaultSocial = {
   facebook: "",
@@ -26,7 +27,7 @@ const defaultColours = {
   surface: "#F5F5F5",
 };
 
-const API = "http://localhost:5000/api/settings";
+const API = `${API_BASE_URL}/api/settings`;
 
 const SettingsManager = () => {
   const [setting, setSetting] = useState(null);
@@ -368,7 +369,7 @@ const SettingsManager = () => {
               {setting?.companyLogo && edit && (
                 <div className="mb-2">
                   <img
-                    src={`http://localhost:5000${setting.companyLogo}`}
+                    src={`${API_BASE_URL}${setting.companyLogo}`}
                     alt="Current Logo"
                     style={{ maxHeight: "80px", objectFit: "contain" }}
                   />
@@ -439,7 +440,7 @@ const SettingsManager = () => {
             <div className="row">
               <div className="col-md-4 text-center">
                 <img
-                  src={`http://localhost:5000${setting.companyLogo}`}
+                  src={`${API_BASE_URL}${setting.companyLogo}`}
                   alt="Logo"
                   className="img-fluid rounded mb-3"
                   style={{ maxHeight: "150px", objectFit: "contain" }}
@@ -510,7 +511,7 @@ const SettingsManager = () => {
                     <div className="col-md-6 mb-3">
                       <p className="fw-semibold">Video 1</p>
                       <video
-                        src={`http://localhost:5000${setting.video1}`}
+                        src={`${API_BASE_URL}${setting.video1}`}
                         controls
                         className="w-100 rounded"
                       />
@@ -521,7 +522,7 @@ const SettingsManager = () => {
                     <div className="col-md-6 mb-3">
                       <p className="fw-semibold">Video 2</p>
                       <video
-                        src={`http://localhost:5000${setting.video2}`}
+                        src={`${API_BASE_URL}${setting.video2}`}
                         controls
                         className="w-100 rounded"
                       />

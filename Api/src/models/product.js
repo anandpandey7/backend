@@ -6,8 +6,10 @@ const productSchema = new mongoose.Schema(
     description: { type: String, required: true },
     longDescription: { type: String }, // CKEditor HTML
     price: { type: Number, required: true },
+    sellingPrice: { type: Number, required: true },
     productCategory: { type: String, required: true },
-    image: { type: String, required: true } // image path
+    image: { type: String, required: true }, // image path
+    gallery: [{ type: String }] // array of image paths
   },
   { timestamps: true }
 );

@@ -16,6 +16,10 @@ import JobAdmin from "./components/layout/job";
 import CareersManager from "./components/layout/careerManager";
 import CertificationManager from "./components/layout/CertificateManager";
 import OEM from "./components/layout/OemManager";
+import FeaturesManager from "./components/layout/FeaturesManager";
+import PackageManager from "./components/layout/PackageManager";
+import ProductInquiriesManager from "./components/layout/productInquiriesManager";
+import ServiceInquiriesManager from "./components/layout/serviceInquiriesManager";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -121,6 +125,16 @@ function App() {
           />
 
           <Route
+            path="/serviceInquires"
+            element={
+              <ProtectedRoute>
+                <ServiceInquiriesManager />
+              </ProtectedRoute>
+            }
+          />
+
+
+          <Route
             path="/portfolio"
             element={
               <ProtectedRoute>
@@ -182,6 +196,16 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/productInquires"
+            element={
+              <ProtectedRoute>
+                <ProductInquiriesManager />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="/jobs"
             element={
@@ -205,6 +229,24 @@ function App() {
             element={
               <ProtectedRoute>
                 <OEM />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/features"
+            element={
+              <ProtectedRoute>
+                <FeaturesManager />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/packages"
+            element={
+              <ProtectedRoute>
+                <PackageManager />
               </ProtectedRoute>
             }
           />

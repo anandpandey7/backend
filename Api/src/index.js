@@ -42,7 +42,7 @@ import domainRoutes from "./routes/domain.routes.js";
 import serviceInquiryRoutes from "./routes/serviceInquiry.routes.js";
 import featureRoutes from "./routes/feature.routes.js";
 import packageRoutes from "./routes/package.routes.js"
-
+import productInquiryRoutes from"./routes/productInquiry.routes.js";
 
 
 
@@ -95,6 +95,7 @@ app.use("/api/domains",domainRoutes);
 app.use("/api/serviceinquiries",serviceInquiryRoutes);
 app.use("/api/features",featureRoutes);
 app.use("/api/packages",packageRoutes);
+app.use("/api/productinquiries", productInquiryRoutes);
 
 /* =====================
    Health Check

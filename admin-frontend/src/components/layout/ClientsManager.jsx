@@ -3,6 +3,7 @@ import ClientCard from "./ClientCard";
 import ClientForm from "./ClientForm";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { API_BASE_URL } from "../helper/config";
 
 const ClientsManager = () => {
   const [clients, setClients] = useState([]);
@@ -16,7 +17,7 @@ const ClientsManager = () => {
 
   const fetchClients = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/clients");
+      const res = await fetch(`${API_BASE_URL}/api/clients`);
       const data = await res.json();
       setClients(data.projects || []);
     } catch {
@@ -30,7 +31,7 @@ const ClientsManager = () => {
     if (!window.confirm("Delete this client?")) return;
     try {
       const res = await fetch(
-        `http://localhost:5000/api/clients/${id}`,
+        `${API_BASE_URL}/api/clients/${id}`,
         { method: "DELETE" }
       );
       const data = await res.json();

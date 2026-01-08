@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { CKEditor } from "@ckeditor/ckeditor5-react";
@@ -6,6 +6,8 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { API_BASE_URL } from "../helper/config";
 
 /* ================= CKEditor Upload Adapter ================= */
+
+
 
 class MyUploadAdapter {
   constructor(loader) {
@@ -249,6 +251,7 @@ const PostCard = ({ post, onEdit, onDelete }) => {
 /* ================= CreatePost ================= */
 
 const CreatePost = ({ editPost, onPostSaved, onCancelEdit }) => {
+  const postsScrollRef = useRef(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [projectLongDescription, setProjectLongDescription] = useState("");
@@ -269,7 +272,19 @@ const CreatePost = ({ editPost, onPostSaved, onCancelEdit }) => {
     }
   }, [editPost]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!title.trim()) {
+      toast.error("Title is required");
+      return;
+    }
+
+  if (!description.trim() || description.length < 1) {
+    toast.error("Please add Description");
+    return;
+  }
+
     if (!editPost && !image) {
       toast.error("Please upload an image");
       return;
@@ -328,7 +343,7 @@ const CreatePost = ({ editPost, onPostSaved, onCancelEdit }) => {
   };
 
   return (
-    <div className="card">
+    <form className="card" onSubmit={handleSubmit}>
       <div className="card-header d-flex justify-content-between align-items-center">
         <h3 className="card-title mb-0">
           {editPost ? "Edit Blog" : "Create Blog"}
@@ -404,12 +419,12 @@ const CreatePost = ({ editPost, onPostSaved, onCancelEdit }) => {
         <button
           className="btn btn-primary"
           disabled={loading}
-          onClick={handleSubmit}
         >
+
           {loading ? "Saving..." : editPost ? "Update Post" : "Save Post"}
         </button>
       </div>
-    </div>
+    </form>
   );
 };
 
@@ -462,6 +477,15 @@ const PostsManager = () => {
       setEditPost(null);
     } else {
       fetchPosts();
+      // setPosts((prev) => [post, ...prev]); // ← FIX
+
+      // // ✅ scroll to start after DOM updates
+      // setTimeout(() => {
+      //   postsScrollRef.current?.scrollTo({
+      //     left: 0,
+      //     behavior: "smooth",
+      //   });
+      // }, 0);
     }
   };
 
@@ -490,7 +514,9 @@ const PostsManager = () => {
               ) : posts.length === 0 ? (
                 <p className="text-muted">No posts yet.</p>
               ) : (
-                <div className="posts-scroll-container">
+                <div className="posts-scroll-container"
+                // ref={postsScrollRef}
+                >
                   {posts.map((post) => (
                     <PostCard
                       key={post._id}

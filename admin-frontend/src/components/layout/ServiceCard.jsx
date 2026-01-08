@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_BASE_URL } from "../helper/config";
 
 const ServiceCard = ({ service, onEdit, onDelete }) => {
   const [showModal, setShowModal] = useState(false);
@@ -26,13 +27,23 @@ const ServiceCard = ({ service, onEdit, onDelete }) => {
   return (
     <>
       <div className="card shadow-sm service-card">
-        <img
+        {/* <img
           src={`http://localhost:5000${service.thumbnail}`}
           className="card-img-top"
           alt={clean(service.title)}
           style={{ height: "150px", objectFit: "cover" }}
-        />
+        /> */}
 
+        <img
+          src={`${API_BASE_URL}${service.thumbnail}`}
+          className="card-img-top"
+          alt={service.title}
+          style={{
+            height: "160px",
+            width: "100%",
+            objectFit: "contain",
+          }}
+        />
         <div className="card-body d-flex flex-column">
           <h5>{clean(service.title)}</h5>
 
@@ -84,7 +95,7 @@ const ServiceCard = ({ service, onEdit, onDelete }) => {
                 {/* Featured Image */}
                 <div className="text-center mb-3">
                   <img
-                    src={`http://localhost:5000${service.thumbnail}`}
+                    src={`${API_BASE_URL}${service.thumbnail}`}
                     alt={service.title}
                     className="img-fluid rounded shadow-sm"
                     style={{
@@ -95,6 +106,30 @@ const ServiceCard = ({ service, onEdit, onDelete }) => {
                     }}
                   />
                 </div>
+
+                {service.gallery?.length > 0 && (
+                  <div className="mt-3">
+                    <p className="fw-semibold mb-2 text-center">Service Gallery</p>
+
+                    <div className="d-flex gap-2 justify-content-center flex-wrap">
+                      {service.gallery.map((img, idx) => (
+                        <img
+                          key={idx}
+                          src={`${API_BASE_URL}${img}`}
+                          alt={`gallery-${idx}`}
+                          className="img-thumbnail"
+                          style={{
+                            width: "260px",
+                            height: "200px",
+                            objectFit: "contain",
+                            cursor: "pointer",
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
 
                 {/* Short Description */}
                 {service.description && (
