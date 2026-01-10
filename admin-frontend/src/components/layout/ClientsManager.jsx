@@ -15,6 +15,15 @@ const ClientsManager = () => {
     fetchClients();
   }, []);
 
+  // Helper to get headers
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("token");
+    return {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    };
+  };
+
   const fetchClients = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/clients`);
@@ -32,7 +41,9 @@ const ClientsManager = () => {
     try {
       const res = await fetch(
         `${API_BASE_URL}/api/clients/${id}`,
-        { method: "DELETE" }
+        { method: "DELETE",
+          headers: getAuthHeaders(),
+        }
       );
       const data = await res.json();
       if (data.success) {

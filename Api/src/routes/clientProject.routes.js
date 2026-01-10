@@ -39,7 +39,7 @@ router.put(
 );
 
 router.delete("/:id", 
-    // authMiddleware, 
+    authMiddleware, 
     deleteClientProject);
 
 export default router;

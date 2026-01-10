@@ -9,6 +9,18 @@ export const careerSchema = z.object({
   jobTitle: z.string().optional()
 });
 
+// export const careerUpdateSchema = z.object({
+//   responded: z.boolean().optional()
+// });
+
 export const careerUpdateSchema = z.object({
-  responded: z.boolean().optional()
-});
+    responded: z.boolean(),
+    comment: z.string().trim().optional()
+  })
+  .refine(
+    data => !data.responded || (data.comment && data.comment.length > 0),
+    {
+      message: "Comment is required when responded is true",
+      path: ["comment"]
+    }
+  );

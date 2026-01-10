@@ -19,7 +19,8 @@ const oemFormSchema = new mongoose.Schema({
     responded: {
       type: Boolean,
       default: false
-    }
+    },
+    comment: {type: String, default: null}
 }, {timestamps: true});
 
 export default mongoose.model("OEMForm",oemFormSchema);

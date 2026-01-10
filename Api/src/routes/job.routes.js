@@ -12,7 +12,7 @@ import { authMiddleware } from "../middleware/auth.js";
 const router = express.Router();
 
 router.post("/", 
-    // authMiddleware, 
+    authMiddleware, 
     createJob);
 
 router.get("/", getJobs);
@@ -20,11 +20,11 @@ router.get("/", getJobs);
 router.get("/:id", getJobById);
 
 router.put("/:id", 
-    // authMiddleware, 
+    authMiddleware, 
     updateJob);
 
 router.delete("/:id", 
-    // authMiddleware, 
+    authMiddleware, 
     deleteJob);
 
 export default router;

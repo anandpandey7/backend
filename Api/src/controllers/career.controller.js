@@ -91,25 +91,40 @@ export const updateCareer = async (req, res) => {
       });
     }
 
-    const career = await Career.findByIdAndUpdate(
-      req.params.id,
-      parsed.data,
-      { new: true }
-    );
+    const { responded, comment } = parsed.data;
 
-    if (!career) {
-      return res.status(404).json({ success: false, message: "Not found" });
+    const applicant = await Career.findById(req.params.id);
+    if (!applicant) {
+      return res.status(404).json({
+        success: false,
+        message: "Inquiry not found"
+      });
     }
+
+    applicant.responded = responded;
+
+    // update comment only if provided
+    if (comment !== undefined) {
+      applicant.comment = comment;
+    }
+
+    // clear comment when unresponded
+    if (!responded) {
+      applicant.comment = null;
+    }
+
+    await applicant.save();
 
     res.json({
       success: true,
       message: "Application updated",
-      career
+      applicant
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 
 /* =========================

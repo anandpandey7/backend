@@ -117,8 +117,20 @@ const PackageManager = ()=> {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.name || !form.service) {
-      return toast.error("Service & name required");
+    if (!form.name) {
+      return toast.error("Name is required");
+    }
+    if (!form.service) {
+      return toast.error("Service is required");
+    }
+    if (!form.price) {
+      return toast.error("Price is required");
+    }
+    if (!form.sellingPrice) {
+      return toast.error("Selling Price is required");
+    }
+    if (!form.description) {
+      return toast.error("Description is required");
     }
 
     try {

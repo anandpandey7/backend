@@ -13,16 +13,16 @@ const router = express.Router();
 
 router.post("/", uploadCV.single("cv"), createCareer);
 router.get("/", 
-    // authMiddleware, 
+    authMiddleware, 
     getCareers);
 router.get("/:id", 
-    // authMiddleware, 
+    authMiddleware, 
     getCareerById);
 router.patch("/:id", 
-    // authMiddleware, 
+    authMiddleware, 
     updateCareer);
 router.delete("/:id", 
-    // authMiddleware, 
+    authMiddleware, 
     deleteCareer);
 
 export default router;

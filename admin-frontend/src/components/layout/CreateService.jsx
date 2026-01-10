@@ -136,12 +136,16 @@ const CreateService = ({ editService, onSaved, onCancel }) => {
   try {
     setLoading(true);
     const url = editService
-      ? `http://localhost:5000/api/services/${editService._id}`
-      : "http://localhost:5000/api/services";
+      ? `${API_BASE_URL}/api/services/${editService._id}`
+      : `${API_BASE_URL}/api/services`;
 
     const method = editService ? "PUT" : "POST";
 
-    const res = await fetch(url, { method, body: fd });
+    const res = await fetch(url, { method,
+      headers: {
+        Authorization: `Bearer ${token}`, // ✅ middleware needs this
+      },
+      body: fd });
     const data = await res.json();
 
     // Log everything for debugging

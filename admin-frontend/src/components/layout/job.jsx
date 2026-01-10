@@ -217,7 +217,7 @@ const CreateJob = ({ editJob, onJobSaved, onCancelEdit }) => {
   const [applicationDeadline, setApplicationDeadline] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const token = localStorage.getItem("adminToken");
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     if (editJob) {
@@ -289,9 +289,38 @@ const CreateJob = ({ editJob, onJobSaved, onCancelEdit }) => {
     setResponsibilities(responsibilities.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async () => {
-    if (!title || !description || !category) {
-      toast.error("Please fill all required fields");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!title) {
+      toast.error("Title is required");
+      return;
+    }
+    if (!description ) {
+      toast.error("Description is required");
+      return;
+    }
+    if (!category) {
+      toast.error("Category is required");
+      return;
+    }
+    if(!requirements){
+      toast.error("Requirements is required");
+      return;
+    }
+    if(!responsibilities){
+      toast.error("Responsibilities is required");
+      return;
+    }
+    if(!locationType){
+      toast.error("Location type is required");
+      return;
+    }
+    if (!employmentType) {
+      toast.error("Employment Type is required");
+      return;
+    }
+    if(!experienceLevel){
+      toast.error("ExperienceLevel Type is required");
       return;
     }
 
@@ -360,13 +389,13 @@ const CreateJob = ({ editJob, onJobSaved, onCancelEdit }) => {
   };
 
   return (
-    <div className="card">
+    <form className="card" onSubmit={handleSubmit}>
       <div className="card-header d-flex justify-content-between align-items-center">
         <h3 className="card-title mb-0">
           {editJob ? "Edit Job" : "Add Job"}
         </h3>
         {editJob && (
-          <button className="btn btn-sm btn-secondary" onClick={handleCancel}>
+          <button className="btn btn-sm btn-secondary" type="button" onClick={handleCancel}>
             Cancel
           </button>
         )}
@@ -454,6 +483,7 @@ const CreateJob = ({ editJob, onJobSaved, onCancelEdit }) => {
             value={locationType}
             onChange={(e) => setLocationType(e.target.value)}
           >
+            <option value="">Select Type</option>
             <option value="Remote">Remote</option>
             <option value="On-site">On-site</option>
             <option value="Hybrid">Hybrid</option>
@@ -490,6 +520,7 @@ const CreateJob = ({ editJob, onJobSaved, onCancelEdit }) => {
             value={employmentType}
             onChange={(e) => setEmploymentType(e.target.value)}
           >
+            <option value="">Select Type</option>
             <option value="Full-time">Full-time</option>
             <option value="Part-time">Part-time</option>
             <option value="Contract">Contract</option>
@@ -588,14 +619,15 @@ const CreateJob = ({ editJob, onJobSaved, onCancelEdit }) => {
 
       <div className="card-footer">
         <button
+          type="submit"
           className="btn btn-primary w-100"
           disabled={loading}
-          onClick={handleSubmit}
         >
+
           {loading ? "Saving..." : editJob ? "Update Job" : "Add Job"}
         </button>
       </div>
-    </div>
+    </form>
   );
 };
 
@@ -629,7 +661,7 @@ const JobAdmin = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this job?")) return;
-    const token = localStorage.getItem("adminToken");
+    const token = localStorage.getItem("token");
     const res = await fetch(`${API}/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }

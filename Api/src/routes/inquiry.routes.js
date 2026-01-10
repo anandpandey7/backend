@@ -10,16 +10,16 @@ router.post("/", addInquiry);
 
 /* Admin */
 router.get("/", 
-    // authMiddleware, 
+    authMiddleware, 
     getInquiries);
 router.get("/:id", 
-    // authMiddleware, 
+    authMiddleware, 
     getInquiryById);
 router.put("/:id", 
-    // authMiddleware, 
+    authMiddleware, 
     updateInquiryResolve);
 router.delete("/:id", 
-    // authMiddleware, 
+    authMiddleware, 
     deleteInquiry);
 
 export default router;

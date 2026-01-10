@@ -6,7 +6,7 @@ import { API_BASE_URL } from "../helper/config";
 const API = `${API_BASE_URL}/api/careers`;
 
 /* ================= CareerCard ================= */
-const CareerCard = ({ career, onToggle, onDelete, onViewCV }) => {
+const CareerCard = ({ career, onToggle, onDelete, onViewCV, showComment }) => {
   return (
     <div className="card mb-3 shadow-sm border-0">
       <div className="card-body">
@@ -14,10 +14,22 @@ const CareerCard = ({ career, onToggle, onDelete, onViewCV }) => {
         <div className="card-text small text-muted">
           <p className="career-info mb-1"><strong>Email:</strong> {career.email}</p>
           <p className="career-info mb-1"><strong>Phone:</strong> {career.phone}</p>
-          <p className="career-info mb-1"><strong>Job Title:</strong> <span className="badge bg-info text-dark">{career.jobTitle || "N/A"}</span></p>
+          <p className="career-info mb-1">
+            <strong>Job Title:</strong> <span className="badge bg-info text-dark">{career.jobTitle || "N/A"}</span>
+          </p>
           <p className="career-info mb-1"><strong>Details:</strong> {career.details || "No details provided"}</p>
-          <p className="career-info mb-0"><strong>Applied:</strong> {career.createdAt ? new Date(career.createdAt).toLocaleDateString() : "N/A"}</p>
+          <p className="career-info mb-0">
+            <strong>Applied:</strong> {career.createdAt ? new Date(career.createdAt).toLocaleDateString() : "N/A"}
+          </p>
         </div>
+
+        {showComment && career.comment && (
+          <div className="alert alert-info mt-3 mb-2">
+            <strong>Response Comment:</strong>
+            <p className="mb-0 mt-2 small">{career.comment}</p>
+          </div>
+        )}
+
         <hr />
         <div className="d-flex flex-wrap gap-2 justify-content-between">
           <button className="btn btn-outline-primary btn-sm" onClick={() => onViewCV(career.cv)}>
@@ -42,10 +54,14 @@ const CareersManager = () => {
   const [careers, setCareers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showCommentModal, setShowCommentModal] = useState(false);
+  const [selectedCareer, setSelectedCareer] = useState(null);
+  const [comment, setComment] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  // Helper to get headers (Used in every request)
+  // Helper to get headers
   const getAuthHeaders = () => {
-    const token = localStorage.getItem("adminToken");
+    const token = localStorage.getItem("token");
     return {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -77,12 +93,51 @@ const CareersManager = () => {
     fetchCareers();
   }, [fetchCareers]);
 
+  const openCommentModal = (career) => {
+    setSelectedCareer(career);
+    setComment(career.comment || "");
+    setShowCommentModal(true);
+  };
+
+  const closeCommentModal = () => {
+    setShowCommentModal(false);
+    setSelectedCareer(null);
+    setComment("");
+  };
+
   const toggleResponded = async (career) => {
+    // If marking as responded, show comment modal
+    if (!career.responded) {
+      openCommentModal(career);
+      return;
+    }
+
+    // If marking as unresponded, proceed directly
+    await updateCareerStatus(career, false, null);
+  };
+
+  const handleCommentSubmit = async () => {
+    if (!comment.trim()) {
+      toast.error("Comment is required when marking as responded");
+      return;
+    }
+
+    await updateCareerStatus(selectedCareer, true, comment);
+    closeCommentModal();
+  };
+
+  const updateCareerStatus = async (career, responded, comment) => {
     try {
+      setSubmitting(true);
+      const body = { responded };
+      if (comment !== null) {
+        body.comment = comment;
+      }
+
       const res = await fetch(`${API}/${career._id}`, {
         method: "PATCH",
         headers: getAuthHeaders(),
-        body: JSON.stringify({ responded: !career.responded }),
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
@@ -91,14 +146,19 @@ const CareersManager = () => {
         throw new Error(data.message || "Update failed");
       }
 
-      toast.success(career.responded ? "Marked as unresponded" : "Marked as responded");
+      toast.success(responded ? "Marked as responded ✅" : "Marked as unresponded 🔄");
       
-      // Update local state instead of re-fetching
       setCareers((prev) =>
-        prev.map((c) => (c._id === career._id ? { ...c, responded: !career.responded } : c))
+        prev.map((c) =>
+          c._id === career._id
+            ? { ...c, responded, comment: responded ? comment : null }
+            : c
+        )
       );
     } catch (e) {
       toast.error(e.message);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -138,7 +198,7 @@ const CareersManager = () => {
 
   return (
     <div className="container py-4">
-      <ToastContainer position="top-right" autoClose={2000} />
+      <ToastContainer position="top-center" autoClose={2000} />
       
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h3 className="mb-0">Career Applications</h3>
@@ -173,7 +233,14 @@ const CareersManager = () => {
                   <p className="text-center text-muted py-4">All clear!</p>
                 ) : (
                   unresponded.map((c) => (
-                    <CareerCard key={c._id} career={c} onToggle={toggleResponded} onDelete={handleDelete} onViewCV={handleViewCV} />
+                    <CareerCard
+                      key={c._id}
+                      career={c}
+                      onToggle={toggleResponded}
+                      onDelete={handleDelete}
+                      onViewCV={handleViewCV}
+                      showComment={false}
+                    />
                   ))
                 )}
               </div>
@@ -191,9 +258,76 @@ const CareersManager = () => {
                   <p className="text-center text-muted py-4">No responded applications yet.</p>
                 ) : (
                   responded.map((c) => (
-                    <CareerCard key={c._id} career={c} onToggle={toggleResponded} onDelete={handleDelete} onViewCV={handleViewCV} />
+                    <CareerCard
+                      key={c._id}
+                      career={c}
+                      onToggle={toggleResponded}
+                      onDelete={handleDelete}
+                      onViewCV={handleViewCV}
+                      showComment={true}
+                    />
                   ))
                 )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Comment Modal */}
+      {showCommentModal && (
+        <div
+          className="modal show d-block"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          onClick={closeCommentModal}
+        >
+          <div
+            className="modal-dialog modal-dialog-centered"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Add Response Comment</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={closeCommentModal}
+                  disabled={submitting}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <label className="form-label fw-semibold">
+                  Comment <span className="text-danger">*</span>
+                </label>
+                <textarea
+                  className="form-control"
+                  rows="4"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Enter response details or action taken..."
+                  disabled={submitting}
+                />
+                <small className="text-muted">
+                  This comment will be saved with the responded application.
+                </small>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={closeCommentModal}
+                  disabled={submitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  onClick={handleCommentSubmit}
+                  disabled={submitting || !comment.trim()}
+                >
+                  {submitting ? "Saving..." : "Mark as Responded"}
+                </button>
               </div>
             </div>
           </div>

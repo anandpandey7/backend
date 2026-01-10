@@ -3,6 +3,7 @@ import { oemFormSchema, respondedSchema } from "../validators/oemForm.schema.js"
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import mongoose from "mongoose";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,7 +18,10 @@ export const createOEMForm = async (req, res) => {
     const parsed = oemFormSchema.safeParse(req.body);
     if (!parsed.success) {
       if (req.file) deleteFile(req.file.path);
-      return res.status(400).json(parsed.error);
+      return res.status(400).json({
+        success: false,
+        errors: parsed.error.errors
+      });
     }
 
     const form = await OEMForm.create({
@@ -56,14 +60,43 @@ export const updateResponded = async (req, res) => {
   try {
     const parsed = respondedSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json(parsed.error);
+      return res.status(400).json({
+        success: false,
+        errors: parsed.error.errors
+      });
     }
 
-    const form = await OEMForm.findByIdAndUpdate(
-      req.params.id,
-      parsed.data,
-      { new: true }
-    );
+    const { responded, comment } = parsed.data;
+
+    // for making code more robust
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid form ID"
+      });
+    }
+
+    const form = await OEMForm.findById(req.params.id);
+    if(!form){
+      return res.status(404).json({
+        success: false,
+        message: "form not found"
+      });
+    }
+
+    form.responded = responded
+
+    // update comment only if provided
+    if (comment !== undefined) {
+      form.comment = comment;
+    }
+
+    // clear comment when unresponded
+    if (!responded) {
+      form.comment = null;
+    }
+
+    await form.save();
 
     res.json({ success: true, form });
   } catch (error) {

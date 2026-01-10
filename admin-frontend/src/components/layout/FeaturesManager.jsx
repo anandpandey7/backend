@@ -19,11 +19,21 @@ export default function FeaturesManager() {
     type: "boolean",
   });
 
+  if (!token) {
+    toast.error("Please login again");
+    return;
+  }
+
   // fetch features
 
   const fetchFeatures = async () => {
     try {
-      const res = await fetch(API);
+      const res = await fetch(API, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await res.json();
       if (data.success) {
         setFeatures(data.features);

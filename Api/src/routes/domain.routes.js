@@ -11,17 +11,17 @@ import { authMiddleware } from "../middleware/auth.js";
 const router = express.Router();
 
 router.post("/",
-    // authMiddleware,
+    authMiddleware,
     createDomain);
 
 router.get("/", getDomains);
 
 router.put("/:id",
-    // authMiddleware,
+    authMiddleware,
     updateDomain);
 
 router.delete("/:id",
-    // authMiddleware,
+    authMiddleware,
     deleteDomain);
 
 export default router;

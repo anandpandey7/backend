@@ -42,7 +42,8 @@ const careerApplicationSchema = new mongoose.Schema(
     responded: {
       type: Boolean,
       default: false
-    }
+    },
+    comment: {type: String, default: null }
   },
   { timestamps: true }
 );

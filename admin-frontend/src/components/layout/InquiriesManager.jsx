@@ -14,23 +14,46 @@ const InquiriesManager = () => {
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Please login again");
+        return;
+      }
+
   useEffect(() => {
     fetchInquiries();
   }, []);
 
   const fetchInquiries = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch(API);
-      const data = await res.json();
-      setInquiries(data.inquiries || []);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to load inquiries");
-    } finally {
-      setLoading(false);
+  if (!token) {
+    toast.error("Please login again");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const res = await fetch(API, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (res.status === 401) {
+      toast.error("Session expired. Please login again.");
+      return;
     }
-  };
+
+    const data = await res.json();
+    setInquiries(data.inquiries || []);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to load inquiries");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const openCommentModal = (inq) => {
     setSelectedInquiry(inq);
@@ -82,7 +105,9 @@ const InquiriesManager = () => {
 
       const res = await fetch(`${API}/${inq._id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+         },
         body: JSON.stringify(body),
       });
 

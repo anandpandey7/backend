@@ -20,7 +20,7 @@ router.get("/:id", getServiceById);
 // Create Services
 router.post(
   "/",
-  // authMiddleware,
+  authMiddleware,
   serviceUploadFields,
   addService
 );
@@ -28,7 +28,7 @@ router.post(
 // Update Service
 router.put(
   "/:id",
-  // authMiddleware,
+  authMiddleware,
   serviceUploadFields,
   updateService
 );
@@ -36,14 +36,14 @@ router.put(
 /* 🧹 Delete single gallery image */
 router.delete(
   "/:id/image",
-  // authMiddleware,
+  authMiddleware,
   deleteServiceImage
 );
 
 /* 🗑️ Delete Service */
 router.delete(
   "/:id",
-  // authMiddleware,
+  authMiddleware,
   deleteService
 );
 

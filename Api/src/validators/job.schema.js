@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const jobSchema = z.object({
-  title: z.string().min(3),
+  title: z.string().min(1),
   description: z.string().min(1),
 
   requirements: z.array(z.string().min(1)),

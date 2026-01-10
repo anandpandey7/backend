@@ -37,6 +37,7 @@ export const authMiddleware = async (req, res, next) => {
     }
 
     // Attach admin to request
+    // console.log("Authenticated admin:", admin.email);
     req.admin = admin;
     next();
   } catch (err) {

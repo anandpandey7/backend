@@ -14,14 +14,14 @@ const router = express.Router();
 router.post("/", uploadOEM.single("projectReport"), createOEMForm);
 
 router.get("/",
-    // authMiddleware,
+    authMiddleware,
     getAllOEMForms);
 
 router.patch("/:id/responded",
-    // authMiddleware,
+    authMiddleware,
     updateResponded);
 router.delete("/:id",
-    // authMiddleware,
+    authMiddleware,
      deleteOEMForm);
 
 export default router;

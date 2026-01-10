@@ -3,6 +3,7 @@ import ServiceCard from "./ServiceCard";
 import CreateService from "./CreateService";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { API_BASE_URL } from "../helper/config";
 
 const ServicesManager = () => {
   const [services, setServices] = useState([]);
@@ -16,7 +17,7 @@ const ServicesManager = () => {
   const fetchServices = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/services");
+      const res = await fetch(`${API_BASE_URL}/api/services`);
       const data = await res.json();
       setServices(data.services || []);
     } catch (e) {
@@ -31,8 +32,17 @@ const ServicesManager = () => {
     if (!window.confirm("Delete this service?")) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/services/${id}`, {
+      const token = localStorage.getItem("token");
+        if (!token) {
+          toast.error("Please login again");
+          return;
+        }
+        
+      const res = await fetch(`${API_BASE_URL}/api/services/${id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`, // ✅ middleware needs this
+        },
       });
       const data = await res.json();
 
