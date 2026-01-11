@@ -72,8 +72,10 @@ const CareersManager = () => {
     try {
       setLoading(true);
       const res = await fetch(API, {
-        headers: getAuthHeaders(),
-      });
+  method: "GET",
+  headers: getAuthHeaders(),
+});
+
       const data = await res.json();
       
       if (res.ok) {

@@ -647,7 +647,9 @@ const JobAdmin = () => {
   }, []);
 
   const fetchJobs = () => {
-    fetch(API)
+    fetch(API,{
+      
+    })
       .then((res) => res.json())
       .then((data) => {
         setJobs(data.jobs || []);

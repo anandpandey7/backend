@@ -150,6 +150,13 @@ const Sidebar = () => {
             </li>
 
             <li className="nav-item">
+              <Link to="/marquee" className="nav-link">
+                <i className="nav-icon bi bi-file-text"></i>
+                <p>Cross Data</p>
+              </Link>
+            </li>
+
+            <li className="nav-item">
               <Link to="/settings" className="nav-link">
                 <i className="nav-icon bi bi-file-text"></i>
                 <p>Settings</p>

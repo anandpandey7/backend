@@ -20,6 +20,7 @@ import FeaturesManager from "./components/layout/FeaturesManager";
 import PackageManager from "./components/layout/PackageManager";
 import ProductInquiriesManager from "./components/layout/productInquiriesManager";
 import ServiceInquiriesManager from "./components/layout/serviceInquiriesManager";
+import MarqueeManager from "./components/layout/marqueeManager";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -249,6 +250,15 @@ function App() {
                 <PackageManager />
               </ProtectedRoute>
             }
+          />
+
+          <Route
+            path="/marquee"
+            element= {
+              <ProtectedRoute>
+                <MarqueeManager />
+              </ProtectedRoute>
+            } 
           />
 
           {/* ➡ Default */}

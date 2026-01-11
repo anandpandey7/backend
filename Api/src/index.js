@@ -43,6 +43,7 @@ import serviceInquiryRoutes from "./routes/serviceInquiry.routes.js";
 import featureRoutes from "./routes/feature.routes.js";
 import packageRoutes from "./routes/package.routes.js"
 import productInquiryRoutes from"./routes/productInquiry.routes.js";
+import marqueeRoutes from "./routes/maqruee.routes.js"
 
 
 
@@ -96,6 +97,7 @@ app.use("/api/serviceinquiries",serviceInquiryRoutes);
 app.use("/api/features",featureRoutes);
 app.use("/api/packages",packageRoutes);
 app.use("/api/productinquiries", productInquiryRoutes);
+app.use("/api/marquee", marqueeRoutes);
 
 /* =====================
    Health Check

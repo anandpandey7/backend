@@ -83,7 +83,7 @@ const PostCard = ({ post, onEdit, onDelete }) => {
     images.forEach((img) => {
       const src = img.getAttribute("src");
       if (src && src.startsWith("/")) {
-        img.setAttribute("src", "http://localhost:5000" + src);
+        img.setAttribute("src", API_BASE_URL + src);
       }
     });
 
@@ -94,7 +94,7 @@ const PostCard = ({ post, onEdit, onDelete }) => {
     <>
       <div className="post-card card shadow-sm">
         <img
-          src={`http://localhost:5000${post.image}`}
+          src={`${API_BASE_URL}${post.image}`}
           className="card-img-top"
           alt={post.title}
           style={{ height: "160px", objectFit: "cover" }}
@@ -164,7 +164,7 @@ const PostCard = ({ post, onEdit, onDelete }) => {
               {/* Featured Image (Compact) */}
               <div className="text-center mb-3">
                 <img
-                  src={`http://localhost:5000${post.image}`}
+                  src={`${API_BASE_URL}${post.image}`}
                   alt={post.title}
                   className="img-fluid rounded shadow-sm"
                   style={{
@@ -303,8 +303,8 @@ const CreatePost = ({ editPost, onPostSaved, onCancelEdit }) => {
       setLoading(true);
 
       const url = editPost
-        ? `http://localhost:5000/api/posts/${editPost._id}`
-        : "http://localhost:5000/api/posts";
+        ? `${API_BASE_URL}/api/posts/${editPost._id}`
+        : `${API_BASE_URL}/api/posts`;
 
       const method = editPost ? "PUT" : "POST";
 
@@ -440,7 +440,7 @@ const PostsManager = () => {
   }, []);
 
   const fetchPosts = () => {
-    fetch("http://localhost:5000/api/posts")
+    fetch(`${API_BASE_URL}/api/posts`)
       .then((res) => res.json())
       .then((data) => {
         setPosts(data.posts || []);
@@ -455,7 +455,7 @@ const PostsManager = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this post?")) return;
 
-    const res = await fetch(`http://localhost:5000/api/posts/${id}`, {
+    const res = await fetch(`${API_BASE_URL}/api/posts/${id}`, {
       method: "DELETE",
     });
     const data = await res.json();
